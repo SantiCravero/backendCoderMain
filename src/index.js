@@ -1,10 +1,10 @@
 import "dotenv/config";
-import express from 'express'
+import express from "express";
 import { Server } from "socket.io";
 import { getManagerMessage } from "./dao/daoManager.js";
 import { engine } from "express-handlebars";
-import { __dirname } from "./path.js";
 import * as path from "path";
+import { __dirname } from "./path.js";
 import routerSocket from "./routes/socket.routes.js";
 
 const app = express();
@@ -21,20 +21,20 @@ app.set("views", path.resolve(__dirname, "./views")); // __dirname + views
 // Port
 app.set("port", process.env.PORT || 8080);
 
-const server = app.listen(
-  app.get("port", () => console.log(`Server on port ${app.get("port")}`))
-);
+const server = app.listen(app.get("port"), () => {
+  console.log(`Server running on Port: ${app.get("port")}`);
+});
 
 // ServerIO
 const io = new Server(server);
 
 const data = await getManagerMessage();
-const managerMessage = new data.ManagerMessageMongoDB;
+const managerMessage = new data.ManagerMessageMongoDB();
 
 io.on("connection", async (socket) => {
   console.log("Client connected");
 
-  socket.on("messageConnection", async (info) => {
+  socket.on("message", async (info) => {            // Le envio al servidor la funcion y la muestro en HBS
     await managerMessage.addElements([info]);
     const message = await managerMessage.getElements();
     console.log(message);
