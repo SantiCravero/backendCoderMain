@@ -5,12 +5,13 @@ import { engine } from "express-handlebars";
 import * as path from "path";
 import { __dirname } from "./path.js";
 
+// import controllers
+import { getManagerMessage } from "./dao/daoManager.js";
+
 // import Routes
 import routerChat from "./routes/chat.routes.js";
 import routerProduct from "./routes/product.routes.js";
-
-// import controllers
-import { getManagerMessage } from "./dao/daoManager.js";
+import routerCart from "./routes/cart.routes.js";
 
 const app = express();
 
@@ -52,3 +53,4 @@ app.use("/", express.static(__dirname + "/public"));
 
 app.use("/chat", routerChat);
 app.use("/product", routerProduct)
+app.use("/api/cart", routerCart)

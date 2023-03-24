@@ -10,9 +10,9 @@ export const getProducts = async (req, res) => {
     const limite = limit != undefined ? limit : 10
     const orden = sort == "asc" ? 1 : -1
     try {
-        const productos = await managerProduct.getProducts(pagina, limite, filter, orden)
+        const productos = await managerProduct.getProducts(limite, pagina, filter, orden)
 
-        if(productos) {
+        if (productos) {
             return res.status(200).json(productos)
         }
 

@@ -1,0 +1,14 @@
+import { Router } from "express";
+import { addProductToCart, createCart, deleteAllProductsCart, deleteProductCart, getProductsCart, updateProductsCart, updateQuantityProduct } from "../controllers/cart.controller.js";
+
+const routerCart = Router()
+
+routerCart.post("/", createCart) // funciona
+routerCart.get("/:cid", getProductsCart) // creo q si
+routerCart.post("/:cid/products/:pid", addProductToCart)
+routerCart.put(":cid", updateProductsCart)
+routerCart.put("/:cid/products/:pid", updateQuantityProduct)
+routerCart.delete("/:cid", deleteAllProductsCart)
+routerCart.delete("/cid/products/:pid", deleteProductCart)
+
+export default routerCart
