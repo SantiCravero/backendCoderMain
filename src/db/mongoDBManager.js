@@ -6,11 +6,11 @@ export class ManagerMongoDB {
   constructor(url, collection, schema) {
     this.#url = url; // Private
     this.collection = collection;
-    this.schema = schema
+    this.schema = new mongoose.Schema(schema)
     this.model = mongoose.model(this.collection, this.schema);
   }
 
-  async #setConection() {
+  async setConection() {      // Saque el privado porque tuve que usarlo para product.js para el paginate
     try {
       await mongoose.connect(this.#url);
       console.log("DB is connected");
@@ -20,7 +20,7 @@ export class ManagerMongoDB {
   }
 
   async addElements(elements) {
-    this.#setConection();
+    this.setConection();
     try {
       return await this.model.insertMany(elements);
     } catch (error) {
@@ -29,7 +29,7 @@ export class ManagerMongoDB {
   }
 
   async getElements() {
-    this.#setConection();
+    this.setConection();
     try {
       return await this.model.find();
     } catch (error) {
@@ -38,7 +38,7 @@ export class ManagerMongoDB {
   }
 
   async getElementById(id) {
-    this.#setConection();
+    this.setConection();
     try {
       return await this.model.findById(id);
     } catch (error) {
@@ -47,7 +47,7 @@ export class ManagerMongoDB {
   }
 
   async updateElement(id, info) {
-    this.#setConection();
+    this.setConection();
     try {
       return await this.model.findByIdAndUpdate(id, info);
     } catch (error) {
@@ -56,7 +56,7 @@ export class ManagerMongoDB {
   }
 
   async deleteElement(id) {
-    this.#setConection();
+    this.setConection();
     try {
       return await this.model.findByIdAndDelete(id);
     } catch (error) {

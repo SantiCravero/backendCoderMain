@@ -10,7 +10,8 @@ const messageSchema = new Schema({
     },
     email: {
         type: String,
-        required: true
+        required: true,
+        match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     },
     message: {
         type: String,
