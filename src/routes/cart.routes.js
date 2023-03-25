@@ -3,12 +3,12 @@ import { addProductToCart, createCart, deleteAllProductsCart, deleteProductCart,
 
 const routerCart = Router()
 
-routerCart.post("/", createCart) // funciona
-routerCart.get("/:cid", getProductsCart) // creo q si
+routerCart.post("/", createCart)
+routerCart.get("/:cid", getProductsCart)
 routerCart.post("/:cid/products/:pid", addProductToCart)
 routerCart.put(":cid", updateProductsCart)
 routerCart.put("/:cid/products/:pid", updateQuantityProduct)
 routerCart.delete("/:cid", deleteAllProductsCart)
-routerCart.delete("/cid/products/:pid", deleteProductCart)
+routerCart.delete("/:cid/products/:pid", deleteProductCart)
 
 export default routerCart

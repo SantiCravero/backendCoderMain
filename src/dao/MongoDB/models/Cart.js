@@ -24,11 +24,18 @@ export class ManagerCartMongoDB extends ManagerMongoDB {
         super(url, 'cart', cartSchema)
     }
 
+    // async addProductCart(id, idProd, cant) {
+    //     super.setConection()
+    //     const carrito = await this.model.findById(id)
+    //     carrito.products.push({ productId: idProd, quantity: cant })
+    //     return carrito.save()
+    // }
+
     async addProductToCart (idCart, idProduct) {
         super.setConection()
 
         const cart = await this.model.findById(idCart)
-        const indexProduct = cart.products.findIndex(product => product.productId == idProduct)
+        const indexProduct = cart.products.findIndex(product => product.productId.equals(idProduct))
 
         if(indexProduct == -1) {
             cart.products.push({ productId: idProduct })
@@ -65,7 +72,7 @@ export class ManagerCartMongoDB extends ManagerMongoDB {
         super.setConection()
 
         const cart = await this.model.findById(idCart)
-        const indexProduct = cart.products.findIndex(product => product.productId == idProduct)
+        const indexProduct = cart.products.findIndex(product => product.productId.equals(idProduct))
 
         if(indexProduct == -1) {
             throw new Error('El producto no existe en el carrito')

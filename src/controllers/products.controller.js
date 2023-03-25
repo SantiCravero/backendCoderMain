@@ -1,7 +1,7 @@
 import { getManagerProducts } from "../dao/daoManager.js";
 
 const data = await getManagerProducts()
-const managerProduct = new data.ManagerProductMongoDB
+export const managerProduct = new data.ManagerProductMongoDB
 
 export const getProducts = async (req, res) => {
     const { limit, page, filter, sort } = req.query

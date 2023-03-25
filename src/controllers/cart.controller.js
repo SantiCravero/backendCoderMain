@@ -1,4 +1,6 @@
-import { getManagerCart } from "../dao/daoManager.js";
+import { getManagerCart, getManagerProducts } from "../dao/daoManager.js";
+import { managerProduct } from "./products.controller.js";
+
 
 const data = await getManagerCart();
 const managerCart = new data.ManagerCartMongoDB();
@@ -41,37 +43,41 @@ export const addProductToCart = async (req, res) => {
     const idProduct = req.params.pid  // Producto a agregar
 
     try {
-        const realProduct = await managerCart.getElementByID(idProduct)
+        const realProduct = await managerProduct.getElementById(idProduct);
 
-        if(realProduct) {
-            const cart  = await managerCart.addProductToCart(idCart, idProduct)
+        if (realProduct) {
+            const cart = await managerCart.addProductToCart(idCart, idProduct);
 
             if (cart) {
                 return res.status(200).json(cart);
-            } else {
+            } else{
                 res.status(200).json({
                     message: "Carrito no encontrado"
                 });
             }
         }
-
+        res.status(200).json({
+            message: "Producto no existe"
+        });
     } catch (error) {
         res.status(500).json({
-            message: error.message,
+            message: error.message
         });
     }
 }
 
+
 export const updateQuantityProduct = async (req, res) => {
 
-    const { quantity } = parseInt(req.body)
+    const { quantity } = req.body;
 
     const idCart = req.params.cid
     const idProduct = req.params.pid
+    const newQuantity = parseInt(quantity);
 
     try {
 
-        const cart = await managerCart.updateQuantityProduct(idCart, idProduct, quantity)
+        const cart = await managerCart.updateQuantityProduct(idCart, idProduct, newQuantity)
         
         if (cart) {
             return res.status(200).json(cart);
@@ -142,7 +148,9 @@ export const deleteProductCart = async (req, res) => {
         const cart = await managerCart.deleteProductCart(idCart, idProduct)
 
         if (cart) {
-            return res.status(200).json(cart);
+            return res.status(200).json({
+                message: "Producto eliminado"
+            });
         }
 
         res.status(200).json({
