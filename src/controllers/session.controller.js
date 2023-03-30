@@ -1,5 +1,5 @@
 import { validatePassword } from "../utils/bcrypt.js";
-import { adminUser, managerUser } from "./user.controller.js";
+import {  managerUser } from "./user.controller.js";
 
 export const getSession = async (req, res) => {
   if (req.session.login) {
@@ -17,19 +17,20 @@ export const getSession = async (req, res) => {
 export const testLogin = async (req, res) => {
   const { email, password } = req.body;
 
-  if (email === adminUser.email && validatePassword(password, adminUser.password)) {
-    req.session.login = true;
-    req.session.name = adminUser.first_name;
-    req.session.role = adminUser.role;
-
-    return res.status(200).json({
-      status: "success",
-      message: `Bienvenido ${req.session.name}, tu rol es ${req.session.role}`
-    });
-  }
-
+  
   try {
     const user = await managerUser.getUserByEmail(email);
+    
+    if (email === "adminCoder@coder.com" && validatePassword(password, user.password)) {
+      req.session.login = true;
+      req.session.name = user.first_name;
+      req.session.role = user.role;
+  
+      return res.status(200).json({
+        status: "success",
+        message: `Bienvenido ${req.session.name}, tu rol es ${req.session.role}`
+      });
+    }
 
     if (user && validatePassword(password, user.password)) {
       req.session.login = true;
