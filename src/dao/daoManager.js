@@ -14,3 +14,8 @@ export const getManagerCart = async () => {
     const modelCart = selectedDB == 1 ? await import('./MongoDB/models/Cart.js') : await import('./Postgresql/models/Cart.js')
     return modelCart
 }
+
+export const getManagerUsers = async () => {
+    const modelUser = selectedDB == 1 ? await import('./MongoDB/models/User.js') : await import('./Postgresql/models/User.js')
+    return modelUser
+}

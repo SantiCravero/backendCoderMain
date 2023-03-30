@@ -24,13 +24,6 @@ export class ManagerCartMongoDB extends ManagerMongoDB {
         super(url, 'cart', cartSchema)
     }
 
-    // async addProductCart(id, idProd, cant) {
-    //     super.setConection()
-    //     const carrito = await this.model.findById(id)
-    //     carrito.products.push({ productId: idProd, quantity: cant })
-    //     return carrito.save()
-    // }
-
     async addProductToCart (idCart, idProduct) {
         super.setConection()
 
