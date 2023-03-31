@@ -21,7 +21,7 @@ export const testLogin = async (req, res) => {
   try {
     const user = await managerUser.getUserByEmail(email);
     
-    if (email === "adminCoder@coder.com" && validatePassword(password, user.password)) {
+    if (email === "adminCoder@coder.com" && validatePassword("adminCod3r123", user.password)) {
       req.session.login = true;
       req.session.name = user.first_name;
       req.session.role = user.role;
@@ -35,9 +35,10 @@ export const testLogin = async (req, res) => {
     if (user && validatePassword(password, user.password)) {
       req.session.login = true;
 
-      res.redirect("/product", 200, {
-        message: "Bienvenido/a a mi tienda",
-      });
+      res.status(200).json({
+        status: "succes",
+        message: "Bienvenido/a a mi tienda"
+      })
 
     } else {
       res.status(200).json({
