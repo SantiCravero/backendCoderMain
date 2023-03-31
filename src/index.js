@@ -2,13 +2,15 @@ import "dotenv/config";
 import express from "express";
 import { Server } from "socket.io";
 import { engine } from "express-handlebars";
+import MongoStore from "connect-mongo";
+import cookieParser from "cookie-parser";
+import session from "express-session";
+import passport from "passport";
 import * as path from "path";
 import { __dirname } from "./path.js";
 import { getManagerMessage } from "./dao/daoManager.js";
 import routerIndex from "./routes/index.routes.js";
-import cookieParser from "cookie-parser";
-import session from "express-session";
-import MongoStore from "connect-mongo";
+import initializatePassport from "./config/passport.js";
 
 const app = express();
 
@@ -32,6 +34,10 @@ app.use(session({
   resave: true,
   saveUninitialized: true
 }))
+// passport
+initializatePassport()
+app.use(passport.initialize())
+app.use(passport.session())
 
 // Port
 app.set("port", process.env.PORT || 8080);

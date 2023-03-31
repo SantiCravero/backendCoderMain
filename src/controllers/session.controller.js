@@ -1,5 +1,5 @@
-import { validatePassword } from "../utils/bcrypt.js";
-import {  managerUser } from "./user.controller.js";
+// import { validatePassword } from "../utils/bcrypt.js";
+// import { managerUser } from "./user.controller.js";
 
 export const getSession = async (req, res) => {
   if (req.session.login) {
@@ -15,36 +15,53 @@ export const getSession = async (req, res) => {
 };
 
 export const testLogin = async (req, res) => {
-  const { email, password } = req.body;
+  // const { email, password } = req.body;
 
-  
   try {
-    const user = await managerUser.getUserByEmail(email);
-    
-    if (email === "adminCoder@coder.com" && validatePassword("adminCod3r123", user.password)) {
-      req.session.login = true;
-      req.session.name = user.first_name;
-      req.session.role = user.role;
-  
-      return res.status(200).json({
-        status: "success",
-        message: `Bienvenido ${req.session.name}, tu rol es ${req.session.role}`
+    if (!req.user) {
+      return res.status(400).json({
+        status: "error",
+        error: "Invalidated user",
       });
     }
+    req.session.user = {
+      first_name: req.user.first_name,
+      last_name: req.user.last_name,
+      age: req.user.age,
+      email: req.user.email,
+    };
 
-    if (user && validatePassword(password, user.password)) {
-      req.session.login = true;
+    res.status(200).json({
+      status: "success",
+      payload: req.user,
+    });
 
-      res.status(200).json({
-        status: "succes",
-        message: "Bienvenido/a a mi tienda"
-      })
+    //   const user = await managerUser.getUserByEmail(email);
 
-    } else {
-      res.status(200).json({
-        message: "Usuario o contraseña incorrectos",
-      });
-    }
+    //   if (email === "adminCoder@coder.com" && validatePassword("adminCod3r123", user.password)) {
+    //     req.session.login = true;
+    //     req.session.name = user.first_name;
+    //     req.session.role = user.role;
+
+    //     return res.status(200).json({
+    //       status: "success",
+    //       message: `Bienvenido ${req.session.name}, tu rol es ${req.session.role}`
+    //     });
+    //   }
+
+    //   if (user && validatePassword(password, user.password)) {
+    //     req.session.login = true;
+
+    //     res.status(200).json({
+    //       status: "succes",
+    //       message: "Bienvenido/a a mi tienda"
+    //     })
+
+    //   } else {
+    //     res.status(200).json({
+    //       message: "Usuario o contraseña incorrectos",
+    //     });
+    //   }
   } catch (error) {
     res.status(500).json({
       message: error.message,
