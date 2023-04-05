@@ -15,26 +15,21 @@ export const getSession = async (req, res) => {
 };
 
 export const testLogin = async (req, res) => {
-  // const { email, password } = req.body;
+    // const { email, password } = req.body;
 
   try {
-    if (!req.user) {
-      return res.status(400).json({
-        status: "error",
-        error: "Invalidated user",
-      });
-    }
-    req.session.user = {
-      first_name: req.user.first_name,
-      last_name: req.user.last_name,
-      age: req.user.age,
-      email: req.user.email,
-    };
+      if (!req.user) {
+          return res.status(400).send({ status: "error", error: "Invalidate User" })
+      }
+      //Genero la session de mi usuario
+      req.session.user = {
+          first_name: req.user.first_name,
+          last_name: req.user.last_name,
+          age: req.user.age,
+          email: req.user.email
+      }
 
-    res.status(200).json({
-      status: "success",
-      payload: req.user,
-    });
+      res.status(200).send({ status: "success", payload: req.user })
 
     //   const user = await managerUser.getUserByEmail(email);
 
@@ -63,11 +58,11 @@ export const testLogin = async (req, res) => {
     //     });
     //   }
   } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
+      res.status(400).json({
+          message: error.message
+      })
   }
-};
+}
 
 export const destroySession = async (req, res) => {
   if (req.session.login) {
