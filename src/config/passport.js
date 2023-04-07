@@ -4,6 +4,7 @@ import GitHubStrategy from "passport-github2";
 import jwt from 'passport-jwt'
 import { managerUser } from "../controllers/user.controller.js";
 import { createHash, validatePassword } from "../utils/bcrypt.js";
+import { generateToken } from "../utils/jwt.js";
 
 const localStrategy = local.Strategy;
 
@@ -13,20 +14,21 @@ const ExtractJWT = jwt.ExtractJwt
 const initializatePassport = () => {
 
   const cookieExtractor = (req) => {  //Si no existe, asigno undefined
-    const token = (req && req.cookies) ? req.cookies('jwtCookies') : null
+    const token = req.cookies ? req.cookies.jwtCookies : null
     return token
   }
 
-  passport.use("jwt",new JWTStrategy({
-        jwtFromRequest: ExtractJWT.fromExtractors([cookieExtractor]),
-        secretOrKey: process.env.SIGNED_COOKIE,
+  passport.use("jwt", new JWTStrategy({
+        jwtFromRequest: ExtractJWT.fromExtractors([cookieExtractor]), //De donde extraigo mi token
+        secretOrKey: process.env.SIGNED_COOKIE, //Mismo valor que la firma de las cookies
       }, async (jwt_payload, done) => {
         try {
           return done(null, jwt_payload);
         } catch (error) {
           return done(error);
         }
-      })
+      }
+    )
   );
   
   passport.use("register", new localStrategy(   //Passport define done como si fuera un res.status()
@@ -41,14 +43,18 @@ const initializatePassport = () => {
           }
 
           const passwordHash = createHash(password);
-          const userCreated = await managerUser.addElements([{
+          const userCreated = await managerUser.addElements([
+            {
               first_name: first_name,
               last_name: last_name,
               email: email,
               age: age,
               password: passwordHash,
-            }]);
-
+            },
+          ]);
+          
+          const token = generateToken(userCreated);
+          console.log(token);
           return done(null, userCreated);
 
         } catch (error) {

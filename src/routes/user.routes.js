@@ -5,6 +5,6 @@ import passport from "passport";
 const routerUser = Router()
 
 //Ruta - Middleware - Controller
-routerUser.post("/register", passport.authenticate('register'),createUser)
+routerUser.post("/register", passport.authenticate('register'), createUser)
 
 export default routerUser

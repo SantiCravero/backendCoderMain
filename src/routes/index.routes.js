@@ -16,4 +16,10 @@ routerIndex.use("/api/session", routerSession)
 routerIndex.use("/api/user", routerUser)
 routerIndex.use("/authSession", routerGithub)
 
+routerIndex.use("*", (req,res) => {
+    res.status(404).send({
+        error: "404 : No se encuentra la página solicitada"
+    })
+})
+
 export default routerIndex
