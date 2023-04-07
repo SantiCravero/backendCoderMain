@@ -1,12 +1,33 @@
 import local from "passport-local";
 import passport from "passport";
 import GitHubStrategy from "passport-github2";
+import jwt from 'passport-jwt'
 import { managerUser } from "../controllers/user.controller.js";
 import { createHash, validatePassword } from "../utils/bcrypt.js";
 
 const localStrategy = local.Strategy;
 
+const JWTStrategy = jwt.Strategy
+const ExtractJWT = jwt.ExtractJwt
+
 const initializatePassport = () => {
+
+  const cookieExtractor = (req) => {  //Si no existe, asigno undefined
+    const token = (req && req.cookies) ? req.cookies('jwtCookies') : null
+    return token
+  }
+
+  passport.use("jwt",new JWTStrategy({
+        jwtFromRequest: ExtractJWT.fromExtractors([cookieExtractor]),
+        secretOrKey: process.env.SIGNED_COOKIE,
+      }, async (jwt_payload, done) => {
+        try {
+          return done(null, jwt_payload);
+        } catch (error) {
+          return done(error);
+        }
+      })
+  );
   
   passport.use("register", new localStrategy(   //Passport define done como si fuera un res.status()
       { passReqToCallback: true, usernameField: "email" }, async (req, username, password, done) => {
