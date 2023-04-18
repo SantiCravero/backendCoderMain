@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { addProductToCart, createCart, deleteAllProductsCart, deleteProductCart, getProductsCart, updateProductsCart, updateQuantityProduct } from "../controllers/cart.controller.js";
+import { addProductToCart, deleteAllProductsCart, deleteProductCart, getProductsCart, updateProductsCart, updateQuantityProduct } from "../controllers/cart.controller.js";
 
 const routerCart = Router()
 
-routerCart.post("/", createCart)
+// routerCart.post("/", createCart)
 routerCart.get("/:cid", getProductsCart)
 routerCart.post("/:cid/products/:pid", addProductToCart)
 routerCart.put(":cid", updateProductsCart)

@@ -4,18 +4,17 @@ import { managerProduct } from "./products.controller.js";
 const data = await getManagerCart();
 export const managerCart = new data.ManagerCartMongoDB();
 
-export const createCart = async (req, res) => {
-    const newCart = {}
-  try {
-    const response = await managerCart.addElements(newCart);
-    return res.status(200).json(response);
+// export const createCart = async (req, res) => {
+//   try {
+//     const response = await managerCart.addElements();
+//     return res.status(200).json(response);
     
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
-  }
-};
+//   } catch (error) {
+//     res.status(500).json({
+//       message: error.message,
+//     });
+//   }
+// };
 
 export const getProductsCart = async (req, res) => {
   try {

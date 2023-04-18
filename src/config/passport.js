@@ -5,6 +5,7 @@ import jwt from 'passport-jwt'
 import { managerUser } from "../controllers/user.controller.js";
 import { createHash, validatePassword } from "../utils/bcrypt.js";
 import { generateToken } from "../utils/jwt.js";
+import { managerCart } from "../controllers/cart.controller.js";
 
 const localStrategy = local.Strategy;
 
@@ -43,6 +44,7 @@ const initializatePassport = () => {
           }
 
           const passwordHash = createHash(password);
+          const cart = await managerCart.addElements()
           const userCreated = await managerUser.addElements([
             {
               first_name: first_name,
@@ -50,6 +52,7 @@ const initializatePassport = () => {
               email: email,
               age: age,
               password: passwordHash,
+              idCart: cart[0]._id
             },
           ]);
           
