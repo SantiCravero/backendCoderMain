@@ -9,28 +9,7 @@ import { managerCart } from "../controllers/cart.controller.js";
 
 const localStrategy = local.Strategy;
 
-const JWTStrategy = jwt.Strategy
-const ExtractJWT = jwt.ExtractJwt
-
 const initializatePassport = () => {
-
-  const cookieExtractor = (req) => {  //Si no existe, asigno undefined
-    const token = req.cookies ? req.cookies.jwtCookies : null
-    return token
-  }
-
-  passport.use("jwt", new JWTStrategy({
-        jwtFromRequest: ExtractJWT.fromExtractors([cookieExtractor]), //De donde extraigo mi token
-        secretOrKey: process.env.SIGNED_COOKIE, //Mismo valor que la firma de las cookies
-      }, async (jwt_payload, done) => {
-        try {
-          return done(null, jwt_payload);
-        } catch (error) {
-          return done(error);
-        }
-      }
-    )
-  );
   
   passport.use("register", new localStrategy(   //Passport define done como si fuera un res.status()
       { passReqToCallback: true, usernameField: "email" }, async (req, username, password, done) => {
@@ -116,21 +95,16 @@ const initializatePassport = () => {
     }
   }))
 
-    //Iniciar la session del usuario
+  //Iniciar la session del usuario
   passport.serializeUser((user, done) => {
-    console.log(user)
-    if (Array.isArray(user)) {
-      done(null, user[0]._id)
-    } else {
-      done(null, user._id)
-    }
-  })
+    done(null, user._id)
+  });
 
-    //Eliminar la sesion del usuario
+  //Eliminar la sesion del usuario
   passport.deserializeUser(async (id, done) => {
-    const user = await managerUser.getElementById(id)
+    const user = await findUserById(id)
     done(null, user)
-  })
+  });
 };
 
 export default initializatePassport;
