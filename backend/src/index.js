@@ -1,27 +1,38 @@
 import "dotenv/config";
 import express from "express";
-import { Server } from "socket.io";
-import { engine } from "express-handlebars";
 import MongoStore from "connect-mongo";
+import cors from 'cors'
+import moongose from 'mongoose'
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import passport from "passport";
 import * as path from "path";
 import { __dirname } from "./path.js";
-import { getManagerMessage } from "./dao/daoManager.js";
 import routerIndex from "./routes/index.routes.js";
 import initializatePassport from "./config/passport.js";
 
+// Cors
+const whitelist = ['http://localhost:3000'] // Rutas validas
+
+const corsOptions = {
+    origin: (origin, callback) => {
+      if (whitelist.indexOf(origin) !== -1) {
+        callback(null, true)
+      } else {
+        callback(new Error('Not allowed by Cors'))
+      }
+    }
+}
+
+// Iniciar server
 const app = express();
 
 // Middlewars
 // express
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// handlebars
-app.engine("handlebars", engine());
-app.set("view engine", "handlebars");
-app.set("views", path.resolve(__dirname, "./views")); // __dirname + views
+app.use(cors(corsOptions))
+
 // cookies
 app.use(cookieParser(process.env.SIGNED_COOKIE))
 app.use(session({
@@ -34,33 +45,28 @@ app.use(session({
   resave: true,
   saveUninitialized: true
 }))
+
 // passport
 initializatePassport()
 app.use(passport.initialize())
 app.use(passport.session())
+
+// Moongose
+const connectionMoongose = async () => {
+  await moongose.connect(process.env.URLMONGODB, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .catch((error) => console.log(error))
+}
+
+connectionMoongose()
 
 // Port
 app.set("port", process.env.PORT || 8080);
 
 const server = app.listen(app.get("port"), () => {
   console.log(`Server running on Port: ${app.get("port")}`);
-});
-
-// ServerIO
-const io = new Server(server);
-
-const data = await getManagerMessage();
-const managerMessage = new data.ManagerMessageMongoDB();
-
-io.on("connection", async (socket) => {
-  console.log("Client connected");
-
-  socket.on("message", async (info) => {            // Le envio al servidor la funcion y la muestro en HBS
-    await managerMessage.addElements([info]);
-    const message = await managerMessage.getElements();
-    console.log(message);
-    socket.emit("allMessages", message);
-  });
 });
 
 // Routes

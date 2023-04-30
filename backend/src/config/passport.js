@@ -1,11 +1,10 @@
 import local from "passport-local";
 import passport from "passport";
 import GitHubStrategy from "passport-github2";
-import jwt from 'passport-jwt'
-import { managerUser } from "../controllers/user.controller.js";
 import { createHash, validatePassword } from "../utils/bcrypt.js";
 import { generateToken } from "../utils/jwt.js";
-import { managerCart } from "../controllers/cart.controller.js";
+import { createUser, findUserByEmail } from "../services/userService.js";
+import { createCart } from "../services/cartService.js";
 
 const localStrategy = local.Strategy;
 
@@ -16,15 +15,15 @@ const initializatePassport = () => {
         const { first_name, last_name, email, age } = req.body;
 
         try {
-          const user = await managerUser.getUserByEmail(username); // username = email
+          const user = await findUserByEmail(username); // username = email
 
           if (user) {   // Usuario existe 
             return done(null, false)   //null que no hubo errores y false que no se creo el usuario
           }
 
           const passwordHash = createHash(password);
-          const cart = await managerCart.addElements()
-          const userCreated = await managerUser.addElements([
+          const cart = await createCart()
+          const userCreated = await createUser([
             {
               first_name: first_name,
               last_name: last_name,
@@ -50,7 +49,7 @@ const initializatePassport = () => {
     { usernameField: 'email' }, async (username, password, done) => {
 
     try {
-        const user = await managerUser.getUserByEmail(username)
+        const user = await findUserByEmail(username)
 
         if (!user) { //Usuario no encontrado
             return done(null, false)
@@ -74,19 +73,21 @@ const initializatePassport = () => {
 
     try {
         console.log(profile)
-        const user = await managerUser.getUserByEmail(profile._json.email)
+        const user = await findUserByEmail(profile._json.email)
 
         if (user) { //Usuario ya existe en BDD
             done(null, user)
         } else {
+            const cart = await createCart()
             const passwordHash = createHash('coder123')
-            const userCreated = await managerUser.addElements([{
+            const userCreated = await createUser([{
                 first_name: profile._json.name,
                 last_name: ' ',
                 email: profile._json.email,
                 age: 18,
-                password: passwordHash //Contraseña por default ya que no puedo accder a la contraseña de github
-            }])
+                password: passwordHash, //Contraseña por default ya que no puedo accder a la contraseña de github
+                cartId: cart._id
+              }])
 
             done(null, userCreated)
         }

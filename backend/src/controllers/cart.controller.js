@@ -1,25 +1,10 @@
-import { getManagerCart, getManagerProducts } from "../dao/daoManager.js";
-import { managerProduct } from "./products.controller.js";
-
-const data = await getManagerCart();
-export const managerCart = new data.ManagerCartMongoDB();
-
-// export const createCart = async (req, res) => {
-//   try {
-//     const response = await managerCart.addElements();
-//     return res.status(200).json(response);
-    
-//   } catch (error) {
-//     res.status(500).json({
-//       message: error.message,
-//     });
-//   }
-// };
+import { findCartById, updateCart, updateQuantityProduct } from "../services/cartService.js";
+import { findProductById } from "../services/productService.js";
 
 export const getProductsCart = async (req, res) => {
   try {
 
-    const products = await managerCart.cartPopulate()
+    const products = await cartPopulate()
 
     if (products) {
         return res.status(200).json(products)
@@ -41,10 +26,10 @@ export const addProductToCart = async (req, res) => {
     const idProduct = req.params.pid  // Producto a agregar
 
     try {
-        const realProduct = await managerProduct.getElementById(idProduct);
+        const realProduct = await findProductById(idProduct);
 
         if (realProduct) {
-            const cart = await managerCart.addProductToCart(idCart, idProduct);
+            const cart = await findCartById(idCart, idProduct);
 
             if (cart) {
                 return res.status(200).json(cart);
@@ -65,7 +50,7 @@ export const addProductToCart = async (req, res) => {
 }
 
 
-export const updateQuantityProduct = async (req, res) => {
+export const updateProductQuantity = async (req, res) => {
 
     const { quantity } = req.body;
 
@@ -75,7 +60,7 @@ export const updateQuantityProduct = async (req, res) => {
 
     try {
 
-        const cart = await managerCart.updateQuantityProduct(idCart, idProduct, newQuantity)
+        const cart = await updateQuantityProduct(idCart, idProduct, newQuantity)
         
         if (cart) {
             return res.status(200).json(cart);
@@ -97,7 +82,7 @@ export const updateProductsCart = async (req, res) => {
     const info = req.body
 
     try {
-        const products = await managerCart.updateElement(idCart, info)
+        const products = await updateCart(idCart, info)
 
         if (products) {
             return res.status(200).json({
@@ -121,7 +106,7 @@ export const deleteAllProductsCart = async (req, res) => {
     const info = { products : [] }
 
     try {
-        const cart = await managerCart.updateElement(idCart, info)
+        const cart = await updateCart(idCart, info)
 
         if (cart) {
             return res.status(200).json(cart);
@@ -143,7 +128,7 @@ export const deleteProductCart = async (req, res) => {
     const idProduct = req.params.pid
 
     try {
-        const cart = await managerCart.deleteProductCart(idCart, idProduct)
+        const cart = await findCartById(idCart, idProduct)
 
         if (cart) {
             return res.status(200).json({

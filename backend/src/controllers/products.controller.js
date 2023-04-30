@@ -1,16 +1,20 @@
-import { getManagerProducts } from "../dao/daoManager.js";
-
-const data = await getManagerProducts()
-export const managerProduct = new data.ManagerProductMongoDB
+import { findProductById, insertProducts, updateOneProduct, paginateProducts, deleteOneProduct } from "../services/productService.js";
 
 export const getProducts = async (req, res) => {
-    const { limit, page, filter, sort } = req.query
+    const { limit, page, filters, sort } = req.query
 
     const pagina = page != undefined ? page : 1
     const limite = limit != undefined ? limit : 10
     const orden = sort == "asc" ? 1 : -1
+
+    const options = {
+        page: pagina,
+        limit: limite,
+        ord: orden
+    }
+    
     try {
-        const productos = await managerProduct.getProducts(limite, pagina, filter, orden)
+        const productos = await paginateProducts(filters, options)
 
         if (productos) {
             return res.status(200).json(productos)
@@ -31,7 +35,7 @@ export const getProduct = async (req, res) => {
     const idProduct = req.params.pid
 
     try {
-        const product = await managerProduct.getElementById(idProduct)
+        const product = await findProductById(idProduct)
 
         if (product) {
             return res.status(200).json({product})
@@ -52,7 +56,7 @@ export const createProduct = async (req, res) => {
     const info = req.body
 
     try {
-        const products = await managerProduct.addElements(info)
+        const products = await insertProducts(info)
 
         res.status(200).json(products)
     } catch (error) {
@@ -67,7 +71,7 @@ export const updateProduct = async (req, res) => {
     const info = req.body;
 
     try {
-        const product = await managerProduct.updateElement(idProduct, info);
+        const product = await updateOneProduct(idProduct, info);
 
         if (product) {
             return res.status(200).json({
@@ -90,7 +94,7 @@ export const deleteProduct = async (req, res) => {
     const idProduct = req.params.pid
 
     try {
-        const product = await managerProduct.deleteElement(idProduct);
+        const product = await deleteOneProduct(idProduct);
 
         if (product) {
             return res.status(200).json({
