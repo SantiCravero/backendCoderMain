@@ -20,19 +20,16 @@ export const passportError = (strategy) => {
 }
 
 export const roleVerification = (role) => {
-    return async (req, res, next) => {
-        if(!req.user) {
-            return res.status(401).send({
-                error: "User no autorizado"
-            })
-        }
+    return (req, res, next) => {
+        if (req.session.login) {
+            if (req.session.user.role !== role) {
+                return res.status(401).send(`Accion no permitida para ${req.session.user.role}`)
+            }
+            next()
 
-        if(req.user.user[0].role != role) {
-            return res.status(401).send({
-                error: "User no posee los permisos necesarios"
-            })
+        } else {
+            return res.status(401).send(`${req.session.user.role} no posee los permisos necesarios`)
         }
-
-        next()
     }
+
 }

@@ -30,7 +30,7 @@ const initializatePassport = () => {
               email: email,
               age: age,
               password: passwordHash,
-              idCart: cart[0]._id
+              idCart: cart._id
             },
           ]);
           
@@ -98,8 +98,15 @@ const initializatePassport = () => {
 
   //Iniciar la session del usuario
   passport.serializeUser((user, done) => {
-    done(null, user._id)
-  });
+    if (!user) {
+        done(null, null);
+    }
+    if (Array.isArray(user)) {
+        done(null, user[0]._id);
+    } else {
+        done(null, user._id);
+    }
+});
 
   //Eliminar la sesion del usuario
   passport.deserializeUser(async (id, done) => {

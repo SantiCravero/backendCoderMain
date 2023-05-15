@@ -35,18 +35,18 @@ export const updateCart = async (id, info) => {
 }
 
 export const updateQuantityProduct = async (idCart, idProduct, newQuantity) => {
-    const cart = await cartModel.findById(idCart)
-    const indexProduct = cart.products.findIndex(product => product.productId == idProduct)
-
-    if (indexProduct == -1) {
-        throw new Error("El producto no existe en el carrito")
-    } else {
-        cart.products[indexProduct].quantity += newQuantity
+    try {
+        const cart = await cartModel.findById(idCart)
+        const indexProduct = cart.products.findIndex(product => product.productId == idProduct)
+    
+        if (indexProduct == -1) {
+            throw new Error("El producto no existe en el carrito")
+        } else {
+            cart.products.splice(productIndex, 1)
+            await cart.save()
+            return true
+        }
+    } catch (error) {
+        throw new Error(error)
     }
-    return await cart.save()
-}
-
-export const cartPopulate = async () => {
-    const prods = await cartModel.find().populate("products.productId")
-    return prods
 }

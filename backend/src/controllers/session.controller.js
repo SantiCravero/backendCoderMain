@@ -1,81 +1,90 @@
-// import { validatePassword } from "../utils/bcrypt.js";
-// import { managerUser } from "./user.controller.js";
+import passport from "passport";
 
-export const getSession = async (req, res) => {
-  if (req.session.login) {
-    res.redirect("/product", 200, {
-      message: "Bienvenido/a a mi tienda",
-    });
-  } else {
-    res.status(200).json({
-      status: "failure",
-      response: "No existe sesion activa",
-    });
-  }
-};
+export const registerUser = async (req, res, next) => {
+    try {
+        passport.authenticate('register', async (err, user) => {
+            if (err) {
+                return res.status(401).send({
+                    message: `Error en registro`,
+                    error: err.message
+                })
+            }
+            if (!user) {
+                return res.status(401).send(`El email ingresado ya esta en uso`)
+            }
 
-export const testLogin = async (req, res) => {
-    // const { email, password } = req.body;
+            return res.status(200).send(`Usuario registrado con exito`)
+        })(req, res, next)
+    } catch (error) {
+        res.status(500).send({
+            message: "Error en el servidor",
+            error: error.message
+        })
+    }
+}
 
+export const loginUser = async (req, res, next) => {
   try {
-      if (!req.user) {
-          return res.status(400).send({ status: "error", error: "Invalidate User" })
-      }
-      //Genero la session de mi usuario
-      req.session.user = {
-          first_name: req.user.first_name,
-          last_name: req.user.last_name,
-          age: req.user.age,
-          email: req.user.email
-      }
+      passport.authenticate('login', (err, user) => {
+          if (err) {
+              return res.status(401).send({
+                  message: `Error en login`,
+                  error: err.message
+              })
+          }
+          if (!user) {
+              return res.status(401).send(`Credenciales incorrectas`)
+          }
+          req.session.login = true
+          req.session.user = user
 
-      res.status(200).send({ status: "success", payload: req.user })
+          console.log(`Login detectado`)
 
-    //   const user = await managerUser.getUserByEmail(email);
-
-    //   if (email === "adminCoder@coder.com" && validatePassword("adminCod3r123", user.password)) {
-    //     req.session.login = true;
-    //     req.session.name = user.first_name;
-    //     req.session.role = user.role;
-
-    //     return res.status(200).json({
-    //       status: "success",
-    //       message: `Bienvenido ${req.session.name}, tu rol es ${req.session.role}`
-    //     });
-    //   }
-
-    //   if (user && validatePassword(password, user.password)) {
-    //     req.session.login = true;
-
-    //     res.status(200).json({
-    //       status: "succes",
-    //       message: "Bienvenido/a a mi tienda"
-    //     })
-
-    //   } else {
-    //     res.status(200).json({
-    //       message: "Usuario o contraseña incorrectos",
-    //     });
-    //   }
+          return res.status(200).send(`Bienvenido ${req.session.user.role} ${req.session.user.first_name}`)
+      })(req, res, next)
   } catch (error) {
-      res.status(400).json({
-          message: error.message
+      res.status(500).send({
+          message: "Error en el servidor",
+          error: error.message
       })
   }
 }
 
 export const destroySession = async (req, res) => {
-  if (req.session.login) {
-    req.session.destroy();
-
-    res.status(200).json({
-      status: "success",
-      message: "La sesion ha terminado, adios",
-    });
-  } else {
-    res.status(200).json({
-      status: "failure",
-      response: "No existe sesion activa",
-    });
+  try {
+    if (req.session.login) {
+      req.session.destroy();
+  
+      res.status(200).json({
+        status: "success",
+        message: "La sesion ha terminado, adios",
+      });
+    } else {
+      res.status(200).json({
+        status: "failure",
+        response: "No existe sesion activa",
+      });
+    }
+  } catch(error) {
+    res.status(500).send({
+      message: "Error en el servidor",
+      error: error.message
+    })
   }
+};
+
+export const getSession = async (req, res) => {
+  try {
+    if (req.session.login) {
+        console.log(req.session.user)
+        res.status(200).json(req.session.user);
+    } else {
+        return res.status(401).send(`No se encontró ninguna sesion activa`)
+    }
+} catch (error) {
+    res.status(500).send({
+        message: "Error en el servidor",
+        error: error.message
+    })
+}
 };
