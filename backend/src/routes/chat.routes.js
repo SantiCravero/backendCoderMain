@@ -9,6 +9,6 @@ routerChat.get("/", async (req, res) => {
 })
 
 routerChat.get('/', getMessages)
-routerChat.post('/', roleVerification("User"), sendMessage)
+routerChat.post('/', roleVerification("Usuario"), sendMessage)
 
 export default routerChat
