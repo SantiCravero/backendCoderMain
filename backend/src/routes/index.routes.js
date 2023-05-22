@@ -6,6 +6,7 @@ import routerSession from "./session.routes.js";
 import routerUser from "./user.routes.js";
 import routerGithub from "./github.routes.js";
 import routerChat from "./chat.routes.js";
+import routerEmail from "./email.routes.js";
 
 const routerIndex = Router()
 
@@ -15,6 +16,7 @@ routerIndex.use("/api/session", routerSession)
 routerIndex.use("/api/user", routerUser)
 routerIndex.use("/authSession", routerGithub)
 routerIndex.use("/chat", routerChat)
+routerIndex.use("/email", routerEmail)
 
 routerIndex.use("*", (req,res) => {
     res.status(404).send({

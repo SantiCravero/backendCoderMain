@@ -10,6 +10,7 @@ import session from "express-session";
 import passport from "passport";
 import * as path from "path";
 import { __dirname } from "./path.js";
+import compression from 'express-compression'
 import routerIndex from "./routes/index.routes.js";
 import initializatePassport from "./config/passport.js";
 import { createMessage, readMessages } from "./services/chatService.js";
@@ -53,6 +54,11 @@ app.use(session({
 initializatePassport()
 app.use(passport.initialize())
 app.use(passport.session())
+
+// Compression
+app.use(compression({
+  brotli: { enabled: true, zlib: {} }
+}))
 
 // handlebars
 app.engine('handlebars', engine());
