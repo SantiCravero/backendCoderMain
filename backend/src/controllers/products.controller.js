@@ -1,4 +1,7 @@
 import { findProductById, insertProducts, updateOneProduct, paginateProducts, deleteOneProduct } from "../services/productService.js";
+import CustomError from '../utils/errors/customError.js';
+import { EErrors } from "../utils/errors/enums.js";
+import { generateAddProductErrorInfo } from "../utils/errors/info.js";
 
 export const getProducts = async (req, res) => {
     const { limit, page, filters, sort } = req.query
@@ -53,18 +56,30 @@ export const getProduct = async (req, res) => {
 }
 
 export const createProduct = async (req, res) => {
-    const info = req.body
+  const info = req.body;
 
-    try {
-        const products = await insertProducts(info)
+  try {
+    const requiredFields = ['title', 'description', 'price', 'code', 'stock', 'category'];
 
-        res.status(200).json(products)
-    } catch (error) {
-        res.status(500).json({
-            message: error.message
+    if (requiredFields.every((field) => info[field])) {
+        const product = await insertProducts(info);
+        res.status(200).send({
+            message: 'Producto agregado correctamente',
+            product: product
         });
+    } else {
+        CustomError.createError({
+            name: "Error creando el producto",
+            message: "No se pudo crear el producto",
+            cause: generateAddProductErrorInfo(info),
+            code: EErrors.MISSING_FIELDS_ERROR
+        })
     }
+
+} catch (error) {
+    next(error)
 }
+};
 
 export const updateProduct = async (req, res) => {
     const idProduct = req.params.pid;

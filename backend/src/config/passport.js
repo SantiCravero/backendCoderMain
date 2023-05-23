@@ -3,7 +3,7 @@ import passport from "passport";
 import GitHubStrategy from "passport-github2";
 import { createHash, validatePassword } from "../utils/bcrypt.js";
 import { generateToken } from "../utils/jwt.js";
-import { createUser, findUserByEmail } from "../services/userService.js";
+import { createUser, findUserByEmail, findUserById } from "../services/userService.js";
 import { createCart } from "../services/cartService.js";
 
 const localStrategy = local.Strategy;

@@ -156,14 +156,14 @@ export const createNewTicket = async (req, res) => {
 
       for (const cartProduct of cart.products) {
 
-        const dataBaseProduct = await findProductById(cartProduct.productId);
+        const productosDatabase = await findProductById(cartProduct.productId);
 
-        if (dataBaseProduct) {
-          if (dataBaseProduct.stock > cartProduct.quantity) {
+        if (productosDatabase) {
+          if (productosDatabase.stock > cartProduct.quantity) {
 
             amount += cartProduct.quantity;
-            dataBaseProduct.stock -= cartProduct.quantity;
-            await dataBaseProduct.save();
+            productosDatabase.stock -= cartProduct.quantity;
+            await productosDatabase.save();
           } else {
             productosSinStock.push(cartProduct.productId);
           }

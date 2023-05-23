@@ -14,10 +14,12 @@ import compression from 'express-compression'
 import routerIndex from "./routes/index.routes.js";
 import initializatePassport from "./config/passport.js";
 import { createMessage, readMessages } from "./services/chatService.js";
+import errorHandler from "./config/middlewars/errors/errorHandler.js";
 
 // Cors
-// const whitelist = ['http://localhost:3000'] // Rutas validas
+const whitelist = ['http://localhost:3000'] // Rutas validas
 
+// Esta parte esta comentada porque me da error
 // const corsOptions = {
 //     origin: (origin, callback) => {
 //       if (whitelist.indexOf(origin) !== -1) {
@@ -103,3 +105,6 @@ io.on("connection", async (socket) => {
 app.use("/", express.static(__dirname + "/public"));
 
 app.use("/", routerIndex)
+
+// Error Handler
+app.use(errorHandler)
