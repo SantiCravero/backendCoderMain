@@ -15,20 +15,21 @@ import routerIndex from "./routes/index.routes.js";
 import initializatePassport from "./config/passport.js";
 import { createMessage, readMessages } from "./services/chatService.js";
 import errorHandler from "./config/middlewars/errors/errorHandler.js";
+import { addLogger } from "./utils/logger.js";
 
 // Cors
 const whitelist = ['http://localhost:3000'] // Rutas validas
 
 // Esta parte esta comentada porque me da error
-// const corsOptions = {
-//     origin: (origin, callback) => {
-//       if (whitelist.indexOf(origin) !== -1) {
-//         callback(null, true)
-//       } else {
-//         callback(new Error('Not allowed by Cors'))
-//       }
-//     }
-// }
+const corsOptions = {
+    origin: (origin, callback) => {
+      if (whitelist.indexOf(origin) !== -1) {
+        callback(null, true)
+      } else {
+        callback(new Error('Not allowed by Cors'))
+      }
+    }
+}
 
 // Iniciar server
 const app = express();
@@ -77,6 +78,9 @@ const connectionMoongose = async () => {
 }
 
 connectionMoongose()
+
+// Logger
+app.use(addLogger)
 
 // Port
 app.set("port", process.env.PORT || 8080);

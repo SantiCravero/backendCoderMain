@@ -35,7 +35,7 @@ const initializatePassport = () => {
           ]);
           
           const token = generateToken(userCreated);
-          console.log(token);
+          req.logger.info("Usuario creado: ", token)
           return done(null, userCreated);
 
         } catch (error) {

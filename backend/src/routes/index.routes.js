@@ -8,6 +8,7 @@ import routerGithub from "./github.routes.js";
 import routerChat from "./chat.routes.js";
 import routerEmail from "./email.routes.js";
 import routerMocking from "./mocking.routes.js";
+import routerLogger from "./logger.routes.js";
 
 const routerIndex = Router()
 
@@ -19,8 +20,9 @@ routerIndex.use("/authSession", routerGithub)
 routerIndex.use("/chat", routerChat)
 routerIndex.use("/email", routerEmail)
 routerIndex.use("/mockingproducts", routerMocking)
+routerIndex.use("/loggerTest", routerLogger)
 
-routerIndex.use("*", (req,res) => {
+routerIndex.use("*", (req, res) => {
     res.status(404).send({
         error: "404 : No se encuentra la página solicitada"
     })

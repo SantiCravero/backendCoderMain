@@ -10,6 +10,7 @@ export const getMessages = async (req, res) => {
             messages: messages
         })
     } catch (error) {
+        req.logger.fatal("Error en el servidor")
         res.status(500).send({
             message: `Error en el servidor`,
             error: error.message
@@ -37,6 +38,10 @@ export const sendMessage = async (req, res) => {
         })
 
     } catch (error) {
-
+        req.logger.fatal("Error en el servidor")
+        res.status(500).send({
+            message: `Error en el servidor`,
+            error: error.message
+        })
     }
 }

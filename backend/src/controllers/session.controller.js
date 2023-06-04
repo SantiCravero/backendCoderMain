@@ -15,7 +15,9 @@ export const registerUser = async (req, res, next) => {
 
             return res.status(200).send(`Usuario registrado con exito`)
         })(req, res, next)
+
     } catch (error) {
+      req.logger.fatal("Error en el servidor")
         res.status(500).send({
             message: "Error en el servidor",
             error: error.message
@@ -38,11 +40,13 @@ export const loginUser = async (req, res, next) => {
           req.session.login = true
           req.session.user = user
 
-          console.log(`Login detectado`)
+          req.logger.info("Login detectado")
 
           return res.status(200).send(`Bienvenido ${req.session.user.role} ${req.session.user.first_name}`)
       })(req, res, next)
+
   } catch (error) {
+    req.logger.fatal("Error en el servidor")
       res.status(500).send({
           message: "Error en el servidor",
           error: error.message
@@ -66,6 +70,7 @@ export const destroySession = async (req, res) => {
       });
     }
   } catch(error) {
+    req.logger.fatal("Error en el servidor")
     res.status(500).send({
       message: "Error en el servidor",
       error: error.message
@@ -82,6 +87,7 @@ export const getSession = async (req, res) => {
         return res.status(401).send(`No se encontró ninguna sesion activa`)
     }
 } catch (error) {
+  req.logger.fatal("Error en el servidor")
     res.status(500).send({
         message: "Error en el servidor",
         error: error.message

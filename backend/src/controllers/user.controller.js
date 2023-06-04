@@ -6,6 +6,7 @@ export const getUsers = async (req, res) => {
         res.status(200).json({users})
 
     } catch (error) {
+        req.logger.fatal("Error en el servidor")
         res.status(500).send({
             message: "Hubo un error en el servidor", 
             error: error.message

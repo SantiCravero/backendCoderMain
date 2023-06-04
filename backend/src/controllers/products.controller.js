@@ -28,6 +28,7 @@ export const getProducts = async (req, res) => {
         })
 
     } catch (error) {
+        req.logger.fatal("Fatal error: ", error.message)
         res.status(500).json({
             message: error.message
         })
@@ -49,6 +50,7 @@ export const getProduct = async (req, res) => {
         })
 
     } catch (error) {
+        req.logger.error("Error al buscar el producto")
         res.status(500).json({
             message: error.message
         })
@@ -74,6 +76,7 @@ export const createProduct = async (req, res) => {
             cause: generateAddProductErrorInfo(info),
             code: EErrors.MISSING_FIELDS_ERROR
         })
+        req.logger.fatal("Error por falta de campos de producto")
     }
 
 } catch (error) {
@@ -99,6 +102,7 @@ export const updateProduct = async (req, res) => {
         });
 
     } catch (error) {
+        req.logger.fatal("Fatal error: ", error.message)
         res.status(500).json({
             message: error.message
         });
@@ -122,6 +126,7 @@ export const deleteProduct = async (req, res) => {
         });
 
     } catch (error) {
+        req.logger.fatal("Fatal error: ", error.message)
         res.status(500).json({
             message: error.message
         })

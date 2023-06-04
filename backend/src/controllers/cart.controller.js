@@ -12,6 +12,7 @@ export const getCart = async (req, res) => {
         res.status(200).json({ cartPopulate });
 
     } catch (error) {
+        req.logger.fatal("Error en el servidor")
         res.status(500).send({
             message: "Hubo un error en el servidor",
             error: error.message
@@ -35,19 +36,20 @@ export const addProductToCart = async (req, res) => {
                 cart.products[productIndex].quantity += 1;
             }
             await updateCart(idCart, cart);
+            req.logger.info("Producto agregado")
             return res.status(200).send("Producto agregado al carrito con exito")
         }
         res.status(200).json({
             message: "Producto no existe"
         });
     } catch (error) {
+        req.logger.fatal("Error en el servidor")
         res.status(500).json({
             message: "Error en el servidor",
             message: error.message
         });
     }
 }
-
 
 export const updateProductQuantity = async (req, res) => {
 
@@ -68,6 +70,7 @@ export const updateProductQuantity = async (req, res) => {
         return res.status(200).send("Cantidad del producto actualizada")
 
     } catch (error) {
+        req.logger.fatal("Error en el servidor")
         res.status(500).send({
             message: "Error en el servidor",
             error: error.message
@@ -92,6 +95,7 @@ export const updateProductsCart = async (req, res) => {
             })
         }
     } catch (error) {
+        req.logger.fatal("Error en el servidor")
         res.status(500).json({
             message: "Error en el servidor",
             message: error.message
@@ -116,6 +120,7 @@ export const deleteAllProductsCart = async (req, res) => {
         });
 
     } catch (error) {
+        req.logger.fatal("Error en el servidor")
         res.status(500).json({
             message: error.message,
         });
@@ -139,6 +144,7 @@ export const deleteProductCart = async (req, res) => {
         return res.status(200).send("El producto ha sido eliminado del carrito")
 
     } catch (error) {
+        req.logger.fatal("Error en el servidor")
         res.status(500).json({
             message: error.message,
         });
