@@ -1,4 +1,9 @@
 import passport from "passport";
+import jwt from "jsonwebtoken";
+import crypto from 'crypto'
+import { transporter } from "../utils/email.js";
+import { findUserByEmail, findUserById, updateUser } from "../services/userService.js";
+import { createHash, validatePassword } from "../utils/bcrypt.js";
 
 export const registerUser = async (req, res, next) => {
     try {
@@ -94,3 +99,121 @@ export const getSession = async (req, res) => {
     })
 }
 };
+
+export const sendResetPwdLink = async (req, res, next) => {
+  const { email } = req.body;
+
+  try {
+      const user = await findUserByEmail(email);
+      
+      if (!user) {
+          res.status(404).send({
+              status: 'error',
+              message: 'El usuario con este correo electrónico no existe',
+          });
+          return
+      }
+
+      const resetLink = await generatePwdResetLink(user, req, res)
+
+      const recoveryEmailOpts = {
+          from: process.env.MAIL_USER,
+          to: email,
+          subject: 'Enlace de restablecimiento de contraseña',
+          html: `
+          <p>Hola ${user.first_name},</p>
+          <p>Haz click <a href="${resetLink}">aquí</a> para reestablecer tu contraseña:</p>
+  
+          <p>Si no solicitaste un cambio de contraseña, ignora este correo.</p>
+          `
+      }
+      await transporter.sendMail(recoveryEmailOpts);
+
+      
+      req.logger.info(`Enlace de restablecimiento de contraseña enviado a ${email}`)
+      res.status(200).send({
+          status: 'success',
+          message: `Enlace de restablecimiento de contraseña enviado a ${email}`
+      })
+
+  } catch (error) {
+      req.logger.error(`Error en el procedimiento de restablecimiento de contraseña - ${error.message}`)
+      res.status(500).send({
+          status: 'error',
+          message: error.message
+      })
+      next(error)
+  }
+}
+
+async function generatePwdResetLink(user, req, res) {
+  const token = await jwt.sign({ user_id: user._id }, process.env.SIGNED_COOKIE, { expiresIn: '1h' })
+  req.logger.info(`Cookie de restablecimiento de contraseña generada: ${token}`)
+
+  return `http://localhost:${process.env.PORT}/resetPassword`
+}
+
+export const resetPassword = async (req, res, next) => {
+  const { password, confirmPassword, token } = req.body
+
+  console.log(`El token es: ${token}`)
+  if (!token) {
+      res.status(401).send({
+          status: 'error',
+          message: 'Token expirado'
+      })
+      return
+  }
+  if (!password) {
+      res.status(400).send({
+          status: 'error',
+          message: 'Ingrese una nueva contraseña'
+      })
+      return
+  }
+
+  try {
+      const readToken = jwt.verify(token, process.env.SIGNED_COOKIE);
+      const userID = readToken.user_id;
+      const userFound = await findUserById(userID);
+      console.log(`readToken es: ${JSON.stringify(readToken)}`)
+      console.log(`UserID es: ${userID}`)
+      console.log(`El user es: ${userFound}`)
+
+      if (!userFound) {
+          res.status(404).send({
+              status: 'error',
+              message: 'Usuario no encontrado'
+          })
+      }
+      if (password !== confirmPassword) {
+          res.status(400).send({
+              status: 'error',
+              message: 'Ambas contraseñas deben coincidir'
+          })
+          return
+      }
+      if (await validatePassword(password, userFound.password)) {
+          res.status(400).send({
+              status: 'error',
+              message: 'Tu contraseña coincide con la anterior. Porfavor ingrese una nueva'
+          })
+          return
+      }
+
+      //If everything is correct, update the password.
+      const newPassword = await createHash(password.toString());
+      await updateUser(userFound._id, { password: newPassword, });
+      res.status(200).send({
+          status: 'success',
+          message: 'Su contraseña fue cambiada con exito'
+      })
+
+  } catch (error) {
+      res.status(500).send({
+          message: 'Error en el cambio de la contraseña',
+          error: error.message
+      })
+      next(error)        
+  }
+}

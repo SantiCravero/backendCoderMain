@@ -15,10 +15,6 @@ const userSchema = new Schema({
         index: true,
         required: true
     },
-    age:{
-        type: Number,
-        required: true
-    },
     role:{
         type: String,
         default: "Usuario"
@@ -31,7 +27,13 @@ const userSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "Carts",
         required: true
+    },
+    createdAt: {
+        type: Date,
+        required: true,
+        default: Date.now
     }
+      
 })
 
 const userModel = model("Users", userSchema);
