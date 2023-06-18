@@ -7,7 +7,7 @@ restorePasswordForm.addEventListener('submit', async (e) => {
 
   if (password === passwordVerification) {
       const url = 'http://localhost:5000/api/session/password/reset';
-      const response = await fetch(url, {
+      const response = await fetch( url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -19,6 +19,6 @@ restorePasswordForm.addEventListener('submit', async (e) => {
       } else {
         //   window.location.href = 'http://localhost:5000/emailForm';
             alert("no anda")
-      }
+  }
     } 
-});
+  });

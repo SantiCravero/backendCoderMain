@@ -28,12 +28,17 @@ const userSchema = new Schema({
         ref: "Carts",
         required: true
     },
-    createdAt: {
-        type: Date,
-        required: true,
-        default: Date.now
-    }
-      
+    resetToken: {
+        token: {
+            type: String,
+            default: '',
+        },
+        createdAt: {
+            type: Date,
+            required: true,
+            default: Date.now
+        }
+    }  
 })
 
 const userModel = model("Users", userSchema);

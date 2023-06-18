@@ -1,3 +1,4 @@
 fatal: FATAL: no funciona ningun producto
 error: Error en el procedimiento de restablecimiento de contraseña - generatePwdResetLink is not defined
 error: Error en el procedimiento de restablecimiento de contraseña - generatePwdResetLink is not defined
+error: Error in password reset procedure - secretOrPrivateKey must have a value
