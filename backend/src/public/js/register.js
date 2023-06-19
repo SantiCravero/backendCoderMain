@@ -1,4 +1,4 @@
-const form = document.getElementById('form-register')
+const form = document.getElementById('registerForm')
 
 form.addEventListener('submit', e => {
     e.preventDefault()
@@ -19,7 +19,7 @@ form.addEventListener('submit', e => {
             if (response.ok) {
                 window.location.href = '/login'
             } else {
-                throw new Error('Error al crear cuenta')
+                throw new Error('Error al crear cuenta.')
             }
         })
 })

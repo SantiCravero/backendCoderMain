@@ -146,17 +146,10 @@ export const sendResetPwdLink = async (req, res, next) => {
   }
 }
 
-// async function generatePwdResetLink(user, req, res) {
-//   const token = await jwt.sign({ user_id: user._id }, process.env.SIGNED_COOKIE, { expiresIn: '1h' })
-//   req.logger.info(`Cookie de restablecimiento de contraseña generada: ${token}`)
-
-//   return `http://localhost:${process.env.PORT}/resetPassword`
-// }
-
 export const resetPassword = async (req, res, next) => {
     const email = req.signedCookies.tokenEmail
     if (!email) {
-        return res.status(404).send({ message: 'Email not found or password reset link expired, redirecting' })
+        return res.status(404).send({ message: 'Correo electrónico no encontrado o enlace de restablecimiento de contraseña caducado.' })
     }
     const { password, confirmPassword } = req.body
     console.log(email)
@@ -165,26 +158,24 @@ export const resetPassword = async (req, res, next) => {
         console.log(browserCookie)
         const user = await findUserByEmail(email)
 
-
-        //Está este control pero no es necesario ya que reviso antes que el usuario exista, por un caso muy raro como si lo borraran en ese tiempo entre que pidió el link y hizo el recovery
         if (!user) {
-            return res.status(404).send({ message: 'Email not found, redirecting' })
+            return res.status(404).send({ message: 'Email no encontrado.' })
         }
 
         if (!browserCookie || isTokenExpired(browserCookie, user.resetToken)) {
-            return res.status(401).send({ message: 'Password reset link expired' })
+            return res.status(401).send({ message: 'Enlace de restablecimiento de contraseña caducado.' })
         }
 
         if (user.resetToken.token !== browserCookie) {
-            return res.status(401).send({ message: 'Unauthorized action' })
+            return res.status(401).send({ message: 'Acción no autorizada' })
         }
 
         if (password !== confirmPassword) {
-            return res.status(400).send({ message: 'Both password fields must match' })
+            return res.status(400).send({ message: 'Ambas contraseñas deben coincidir.' })
         }
 
         if (await validatePassword(password, user.password)) {
-            return res.status(400).send({ message: 'New password must be different from the current one' })
+            return res.status(400).send({ message: 'La nueva contraseña debe ser diferente a la actual.' })
         }
 
         // * Requirements passed, now we change the password
@@ -193,11 +184,11 @@ export const resetPassword = async (req, res, next) => {
             password: newPassword,
             resetToken: { token: '1h' }
         })
-        res.status(200).send({ message: 'Password updated. Redirecting to login.' })
+        res.status(200).send({ message: 'Contraseña actualizada con exito.' })
 
     } catch (error) {
         res.status(500).send({
-            message: 'Error on password reset',
+            message: 'Error en el restablecimiento de contraseña',
             error: error.message
         })
     }
@@ -217,7 +208,6 @@ async function generatePasswordResetLink(user, req, res) {
         signed: true,
         maxAge: 1000 * 60 * 60
     })
-    //Generamos un email que dure lo mismo que el token para no tener que pedirselo al usuario
     res.cookie('tokenEmail', user.email, {
         signed: true,
         maxAge: 1000 * 60 * 60
@@ -226,8 +216,7 @@ async function generatePasswordResetLink(user, req, res) {
     return link
 }
   
-  // TODO: aplicar testeo de timestamp en receivedCookie
-  function isTokenExpired(receivedCookie, storedToken) {
+function isTokenExpired(receivedCookie, storedToken) {
     const elapsedTime = Date.now() - storedToken.createdAt
     const expirationTime = 1000 * 60 * 60
     return elapsedTime >= expirationTime

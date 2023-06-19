@@ -16,7 +16,7 @@ form.addEventListener('submit', event => {
             if (response.ok) {
                 window.location.href = '/chat';  // Le hago en redirect a chat porque no tengo la view de product creada
             } else {
-                alert("Credenciales inválidas.")
+                alert("Usuario o contraseña incorrectos.")
             }
         })
 })
