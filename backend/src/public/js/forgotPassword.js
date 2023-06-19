@@ -1,4 +1,4 @@
-const sendMailForm = document.getElementById("sendMailForm")
+const sendMailForm = document.getElementById("mailForm")
 sendMailForm.addEventListener('submit', async (e) => {
   e.preventDefault()
   const email = document.getElementById("email").value;
