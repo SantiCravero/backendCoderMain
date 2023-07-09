@@ -8,6 +8,8 @@ import moongose from 'mongoose'
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import passport from "passport";
+import swaggerJSDoc from 'swagger-jsdoc'
+import swaggerUiExpress from 'swagger-ui-express'
 import * as path from "path";
 import { __dirname } from "./path.js";
 import compression from 'express-compression'
@@ -104,6 +106,21 @@ io.on("connection", async (socket) => {
   });
 });
 
+// Configuración SWAGGER
+const swaggerOptions = {
+  definition:{
+      openapi: '3.0.1',
+      info:
+      {
+          title: "Doc Backend Santiago Cravero",
+          description: "API para E-commerce realizado en curso React en Coderhouse."
+      }
+  },
+  apis: [`${__dirname}/docs/**/*.yaml`]
+}
+
+const specs = swaggerJSDoc(swaggerOptions)
+app.use('/apidocs', swaggerUiExpress.serve, swaggerUiExpress.setup(specs))
 
 // Routes
 app.use("/", express.static(__dirname + "/public"));

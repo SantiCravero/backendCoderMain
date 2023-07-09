@@ -1,0 +1,246 @@
+paths:
+  /product/:
+    get:
+      summary: "Devuelve todos los productos existentes en la base de datos."
+      tags: 
+        - Products
+      responses:
+        "200":
+          description: "Productos devueltos correctamente"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#components/schemas/ProductPaginate"
+        "500":
+          description: "Error fatal al intentar obtener los productos"
+
+    post:
+      summary: "Crear un nuevo producto"
+      tags:
+        - Products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductNewOrUpdate"
+      responses:
+        "200":
+          description: "Producto creado correctamente"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductResponse"
+        "401":
+          description: "Usuario no autorizado"
+        "500":
+          description: "Error al crear el producto"
+
+  /product/{pid}:
+    get:
+      summary: "Devuelve el producto con el id proporcionado"
+      tags:
+        - Products
+      parameters:
+      - name: pid
+        in: path
+        required: true
+        description: "id del producto que se quiere devolver"
+        schema: 
+          $type: string
+      responses:
+        "200":
+          description: "Producto encontrado, contenido devuelto"
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/ProductResponse"
+        "500":
+          description: "Error al buscar el producto"
+
+    put:
+      summary: "Actualizar/Modificar un producto"
+      tags:
+        - Products
+      parameters:
+      - name: pid
+        in: path
+        required: true
+        description: "id del producto que quiere modificar"
+        schema: 
+          $type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductNewOrUpdate"
+      responses:
+        "200":
+          description: "Producto actualizado correctamente"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductResponse"
+        "401":
+          description: "Usuario no autorizado"
+        "404":
+          description: "Producto no encontrado"
+        "500":
+          description: "Error fatal al intentar actualizar el producto"
+
+    delete:
+      summary: "Eliminar un producto"
+      tags:
+        - Products
+      parameters:
+      - name: pid
+        in: path
+        required: true
+        description: "id del producto que se quiere eliminar"
+        schema: 
+          $type: string
+      responses:
+        "200":
+          description: "Producto eliminado correctamente"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductResponse"
+        "401":
+          description: "Usuario no autorizado"
+        "404":
+          description: "Producto no encontrado"
+        "500":
+          description: "Error fatal al intentar eliminar el producto"
+
+
+components:
+  schemas:
+    ProductNewOrUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          description: "Titulo del producto"
+        description:
+          type: string
+          decription: "Descripcion del producto"
+        code:
+          type: string
+          description: "Codigo unico del producto"
+        price:
+          type: number
+          description: "Precio del producto"
+        status:
+          type: boolean
+          description: "Estado del producto, activo o inactivo"
+        stock:
+          type: number
+          description: "El stock actual del producto"
+        category:
+          type: string
+          description: "Categoria del producto"
+        thumbnails:
+          type: array
+          description: "Imagenes del producto"
+      example:
+        title: "Relojito"
+        description: "Relojito de alta gama"
+        code: "2490"
+        price: 20000
+        status: true
+        stock: 5
+        category: "Reloj para hombres"
+        thumbnails: ["relojito.png", "relojito2.png"]
+
+    ProductResponse:
+      type: object
+      properties:
+        message: 
+          type: string
+          description: "Resultado de la consulta"
+        product:
+          type: object
+          description: "Producto agregado"
+          properties:
+            _id:
+              type: ObjectId
+              description: "Id Autogenerado"
+            title:
+              type: string
+              description: "Titulo del producto"
+            description:
+              type: string
+              decription: "Descripcion del producto"
+            code:
+              type: string
+              description: "Codigo unico del producto"
+            price:
+              type: number
+              description: "Precio del producto"
+            status:
+              type: boolean
+              description: "Estado del producto, activo o inactivo"
+            stock:
+              type: number
+              description: "El stock actual del producto"
+            category:
+              type: string
+              description: "Categoria del producto"
+            thumbnails:
+              type: array
+              description: "Imagenes del producto"
+            __v:
+              type: string
+              description: "Version del producto"
+      example:
+        message: "Producto creado/modificado correctamente"
+        product: {product: { _id: "6eu597c51a2h84dd6ff81d9a", title: "Relojito", description: "Relojito de alta calidad", code: "2481", "price": 24000, status: true, stock: 3, category: "Relojes para hombres", thumbnails: [ "reloj.png", "reloj1.png"], __v: 0 }}
+
+    ProductPaginate:
+      type: object
+      properties:
+        status:
+          type: string
+          description: "Estado de la solicitud"
+        payload:
+          type: array
+          description: "Productos devuetlos"
+        totalPages:
+          type: number
+          description: "Numero de paginas totales"
+        prevPage:
+          type: number
+          description: "Numero de la pagina anterior"
+        nextPage:
+          type: number
+          description: "Numero de la pagina siguiente"
+        page:
+          type: number
+          description: "Numero de la pagina actual"
+        hasPrevPage:
+          type: boolean
+          description: "Si tiene pagina anterior T/F"
+        hasNextPage:
+          type: boolean
+          description: "Si tiene pagina siguiente T/F"    
+        nextLink:
+          type: string
+          description: "Link de la pagina siguiente"
+        prevLink:
+          type: string
+          description: "Link de la pagina anterior"
+      example:
+        status: "success"
+        payload: [ {"_id": "613da46b0225teac52ff2320","title": "Relojito","description": "Relojito de alta gama","code": "2421","price": 3490,"status": true,"stock": 2,"category": "Reloj para hombres","thumbnails": ["reloj.png"],"__v": 0}]
+        totalPages: 5
+        prevPage: 1
+        nextPage: 3
+        page: 2
+        hasPrevPage: true
+        hasNextPage: true
+        nextLink: "https://localhost:5000/api/product?page=3"
+        prevLink: "https://localhost:5000/api/product?page=1"
