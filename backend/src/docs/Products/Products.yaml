@@ -1,5 +1,5 @@
 paths:
-  /product/:
+  /api/product/:
     get:
       summary: "Devuelve todos los productos existentes en la base de datos."
       tags: 
@@ -38,7 +38,7 @@ paths:
         "500":
           description: "Error al crear el producto"
 
-  /product/{pid}:
+  /api/product/{pid}:
     get:
       summary: "Devuelve el producto con el id proporcionado"
       tags:

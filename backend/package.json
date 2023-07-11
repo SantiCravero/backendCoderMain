@@ -7,7 +7,9 @@
     "node": "18.16.0"
   },
   "scripts": {
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "test": "mocha test/User.test.js",
+    "supertest": "mocha test/superTest.test.js"
   },
   "keywords": [],
   "author": "",
@@ -39,6 +41,9 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^8.0.1",
-    "nodemon": "^2.0.21"
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
+    "nodemon": "^2.0.21",
+    "supertest": "^6.3.3"
   }
 }

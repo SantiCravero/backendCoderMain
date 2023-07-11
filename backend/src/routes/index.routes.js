@@ -13,7 +13,7 @@ import routerHandlebars from "./handlebars.routes.js";
 
 const routerIndex = Router()
 
-routerIndex.use("/product", routerProduct)
+routerIndex.use("/api/product", routerProduct)
 routerIndex.use("/api/cart", routerCart)
 routerIndex.use("/api/session", routerSession)
 routerIndex.use("/api/user", routerUser)
