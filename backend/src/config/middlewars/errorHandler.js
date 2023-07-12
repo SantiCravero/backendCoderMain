@@ -1,4 +1,4 @@
-import { EErrors } from "../../../utils/errors/enums.js";
+import { EErrors } from "../../utils/errors/enums.js";
 
 export default (error, req, res, next) => {
 

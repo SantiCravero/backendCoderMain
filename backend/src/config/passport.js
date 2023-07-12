@@ -12,7 +12,7 @@ const initializatePassport = () => {
   
   passport.use("register", new localStrategy(   //Passport define done como si fuera un res.status()
       { passReqToCallback: true, usernameField: "email" }, async (req, username, password, done) => {
-        const { first_name, last_name, email, age } = req.body;
+        const { first_name, last_name, email, birthDate } = req.body;
 
         try {
           const user = await findUserByEmail(username); // username = email
@@ -28,7 +28,7 @@ const initializatePassport = () => {
               first_name: first_name,
               last_name: last_name,
               email: email,
-              age: age,
+              birthDate: birthDate,
               password: passwordHash,
               idCart: cart._id
             },

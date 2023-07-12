@@ -91,7 +91,6 @@ describe("Testing de mi aplicacion con supertest",()=>{
     //             first_name: "Santiago",
     //             last_name: "Cravero",
     //             email: "santiSuperTest@santi.com",
-    //             age: 20,
     //             role: "User",
     //             password: "coderhouse",
     //         }

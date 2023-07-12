@@ -32,7 +32,7 @@ export const registerUser = async (req, res, next) => {
 
 export const loginUser = async (req, res, next) => {
   try {
-      passport.authenticate('login', (err, user) => {
+      passport.authenticate('login', async (err, user) => {
           if (err) {
               return res.status(401).send({
                   message: `Error en login`,
@@ -42,13 +42,14 @@ export const loginUser = async (req, res, next) => {
           if (!user) {
               return res.status(401).send(`Credenciales incorrectas`)
           }
-          req.session.login = true
-          req.session.user = user
-
-          req.logger.info("Login detectado")
-
-          return res.status(200).send(`Bienvenido ${req.session.user.role} ${req.session.user.first_name}`)
-      })(req, res, next)
+          const token = jwt.sign({ user }, process.env.SIGNED_COOKIE, { expiresIn: "1h" });
+            user.lastConnection = Date.now();
+            await user.save();
+            res.cookie('userCookie', token, { maxAge: 3600000 }).send({
+                status: "success",
+                message: "Inicio de sesion exitoso"
+            });
+        })(req, res, next);
 
   } catch (error) {
     req.logger.fatal("Error en el servidor")
@@ -60,44 +61,52 @@ export const loginUser = async (req, res, next) => {
 }
 
 export const destroySession = async (req, res) => {
-  try {
-    if (req.session.login) {
-      req.session.destroy();
-  
-      res.status(200).json({
-        status: "success",
-        message: "La sesion ha terminado, adios",
-      });
-    } else {
-      res.status(200).json({
-        status: "failure",
-        response: "No existe sesion activa",
-      });
+    try {
+        const cookie = req.cookies['userCookie'];
+        if (cookie) {
+            const loguedUser = jwt.verify(cookie, process.env.SIGNED_COOKIE).user;
+            console.log(loguedUser)
+            const user = await findUserById(loguedUser._id)
+            user.lastConnection = Date.now()
+            await user.save()
+            res.clearCookie('userCookie');
+            res.status(200).json({ message: "Nos vemos en la proxima." });
+        } else {
+            res.status(404).json({ message: "Sesion no encontrada." });
+        }
+    } catch (error) {
+        res.status(500).send({
+            message: "Hubo un error en el servidor",
+            error: error.message
+        });
     }
-  } catch(error) {
-    req.logger.fatal("Error en el servidor")
-    res.status(500).send({
-      message: "Error en el servidor",
-      error: error.message
-    })
-  }
 };
 
 export const getSession = async (req, res) => {
-  try {
-    if (req.session.login) {
-        console.log(req.session.user)
-        res.status(200).json(req.session.user);
-    } else {
-        return res.status(401).send(`No se encontró ninguna sesion activa`)
+    const cookie = req.cookies['userCookie']
+    if (!cookie) {
+        req.logger.fatal("Usuario no encontrado")
+        return res.status(401).json({ error: "Usuario no encontrado" })
     }
-} catch (error) {
-  req.logger.fatal("Error en el servidor")
-    res.status(500).send({
-        message: "Error en el servidor",
-        error: error.message
-    })
-}
+    const user = jwt.verify(cookie, process.env.SIGNED_COOKIE);
+    console.log(user)
+    try {
+        if (user) {
+            return res.status(200).json({
+                message: "success",
+                ...user
+            });
+        } else {
+            return res.status(404).json({
+                message: "Error, no existe session activa"
+            });
+        }
+    } catch (error) {
+        return res.status(500).json({
+            message: "Error en el servidor",
+            error: error
+        })
+    }
 };
 
 export const sendResetPwdLink = async (req, res, next) => {

@@ -16,7 +16,7 @@ import compression from 'express-compression'
 import routerIndex from "./routes/index.routes.js";
 import initializatePassport from "./config/passport.js";
 import { createMessage, readMessages } from "./services/chatService.js";
-import errorHandler from "./config/middlewars/errors/errorHandler.js";
+import errorHandler from "./config/middlewars/errorHandler.js";
 import { addLogger } from "./utils/logger.js";
 
 // Cors

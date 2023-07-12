@@ -1,10 +1,11 @@
 import { Router } from "express";
 import { getUsers } from "../controllers/user.controller.js";
-import passport from "passport";
+import { mensajeMulter, upload } from "../config/multer.js";
+import { roleVerification } from "../utils/errorMessages.js";
 
 const routerUser = Router()
 
-//Ruta - Middleware - Controller
-routerUser.post("/register", passport.authenticate('register'), getUsers)
+routerUser.get("/", roleVerification("User"), getUsers)
+routerUser.post("/documents", upload.any(), mensajeMulter)
 
 export default routerUser
