@@ -1,5 +1,5 @@
 import passport from "passport";
-import jwt from "jsonwebtoken"
+import jwt from "jsonwebtoken";
 import { findUserById } from "../services/userService.js";
 
 export const passportError = (strategy) => {
@@ -34,16 +34,12 @@ export const roleVerification = (roles) => {
 
       const loguedUser = jwt.verify(cookie, process.env.SIGNED_COOKIE).user;
       const userDB = await findUserById(loguedUser._id);
-      let allowed = false;
-      roles.forEach((rol) => {
-        if (rol.toUpperCase() === userDB.rol.toUpperCase()) {
-          req.logger.info("Usuario no autorizado");
-          allowed = true;   
-        }
-      });
-
-      if (!allowed) {
-        return res.status(403).json({ message: "Usuario no autorizado" });
+      if (roles.toUpperCase() !== userDB.role.toUpperCase()) {
+        req.logger.info("Usuario no autorizado");
+      }
+      
+      if (roles.toUpperCase() == userDB.role.toUpperCase()) {
+        req.logger.info("Usuario verificado!");
       }
 
       next();

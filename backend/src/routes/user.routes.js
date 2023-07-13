@@ -6,6 +6,6 @@ import { roleVerification } from "../utils/errorMessages.js";
 const routerUser = Router()
 
 routerUser.get("/", roleVerification("User"), getUsers)
-routerUser.post("/documents", upload.any(), mensajeMulter)
+routerUser.post("/documents", upload.single('document'), mensajeMulter)
 
 export default routerUser
