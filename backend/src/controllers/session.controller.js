@@ -70,7 +70,7 @@ export const destroySession = async (req, res) => {
             user.lastConnection = Date.now()
             await user.save()
             res.clearCookie('userCookie');
-            res.status(200).json({ message: "Nos vemos en la proxima." });
+            res.status(200).json({ message: "Hasta la proxima." });
         } else {
             res.status(404).json({ message: "Sesion no encontrada." });
         }

@@ -13,7 +13,3 @@ const storage = multer.diskStorage({
 });
 
 export const upload = multer({ storage: storage });
-
-export const mensajeMulter = async (req, res) => {
-  res.status(200).json({ message: "Imagen subida exitosamente" });
-};
