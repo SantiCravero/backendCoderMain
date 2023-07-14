@@ -1,4 +1,5 @@
-import { findUserById, findUsers, updateUser, } from "../services/userService.js";
+import { findInactiveUsers, findUserById, findUsers, updateUser, } from "../services/userService.js";
+import { transporter } from "../utils/email.js";
 
 export const getUsers = async (req, res) => {
   try {
@@ -10,6 +11,56 @@ export const getUsers = async (req, res) => {
       message: "Hubo un error en el servidor",
       error: error.message,
     });
+  }
+};
+
+export const deleteInactiveUsers = async (req, res, next) => {
+  try {
+
+    const date = new Date();
+    const twoDays = new Date(date);
+    
+    twoDays.setDate(date.getDate() - 1); // Cambiar a 2
+    console.log(twoDays)
+
+    const inactiveUsers = await findInactiveUsers(twoDays);
+
+    // Comprueba si existe algun usuario inactivos para eliminar
+    if (!inactiveUsers || inactiveUsers.length === 0) {
+      req.logger.info("No se encontro usuario inactivos");
+      return res.status(200).send("No se encontro usuario inactivos");
+    }
+
+    inactiveUsers.forEach((user) => {
+      transporter.sendMail({
+        from: "no-reply",
+        to: user.email,
+        subject: `${user.first_name}, tu cuenta ha sido eliminada por inactividad`,
+        html: `<p>Hola ${user.first_name},</p>
+          
+          <p>Por desgracia, debimos eliminar tu cuenta debido a la inactividad(</p>
+          <p>A partir de este momento, su email se encuentra listo para volverse a utilizar.</p>
+          <small>Si desea volver a nuestra web, debe registrarse nuevamente</small>
+          </br>
+          <p>Esperamos volver a verlo</p>
+          <h2>Michael Kors</h2>
+          
+          `,
+      });
+    });
+
+    const result = await deleteInactiveUsers(twoDays);
+
+    req.logger.info(`Usuarios inavtivos eliminados`);
+    res.status(200).send({
+      status: "success",
+      deletedCount: `${result.deletedCount} usuarios inavtivos eliminados`,
+      deletedUsers: inactiveUsers,
+    });
+
+  } catch (error) {
+    req.logger.error(error);
+    res.status(500).send(`Error en el servidor`);
   }
 };
 
@@ -31,14 +82,14 @@ export const addDocs = async (req, res, next) => {
       return res.status(400).send("Usuario no encontrado");
     }
 
-    const newDocsItem = {
+    const newDocs = {
       name: file.filename,
       reference: file.path,
     };
 
     // Actualiza el usuario
-    const isInfoUpdated = await updateUser(userID, {
-      $push: { documents: newDocsItem },
+    const info = await updateUser(userID, {
+      $push: { documents: newDocs },
     });
 
     res.status(201).send(`El archivo '${file.originalname}' fue subido exitosamente`);

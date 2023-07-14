@@ -34,11 +34,19 @@ export const createUser = async (user) => {
     }
 }
 
-export const deleteUser = async (id) => {
+export const deleteUserById = async (id) => {
     try {
         return await userModel.findByIdAndDelete(id);
     } catch (error) {
         throw new Error(error);
+    }
+}
+
+export const deleteUserByEmail = async (email) => {
+    try {
+      return await userModel.findOneAndDelete({ email: email })
+    } catch (error) {
+      throw new Error(error);
     }
 }
 
@@ -47,5 +55,22 @@ export const updateUser = async (id, info) => {
         return await userModel.findByIdAndUpdate(id, info);
     } catch (error) {
         throw new Error(error);
+    }
+}
+
+export const findInactiveUsers = async (timeLimit) => {
+    try {
+      const users = await userModel.find({ last_connection: { $lt: timeLimit } })
+      return users
+    } catch (error) {
+      throw new Error(error)
+    }
+}
+  
+export const delInactiveUsers = async (timeLimit) => {
+    try {
+        return await userModel.deleteMany({ last_connection: { $lt: timeLimit } })
+    } catch (error) {
+        throw new Error(error)
     }
 }
