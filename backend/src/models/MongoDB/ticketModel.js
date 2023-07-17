@@ -20,6 +20,14 @@ const ticketSchema = new Schema({
     purchaser: {
         type: String,
         required: true
+    },
+    products:{
+        type: Array,
+        required:true
+    },
+    total:{
+        type: Number,
+        required:true
     }
 });
 

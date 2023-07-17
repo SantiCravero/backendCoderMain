@@ -54,7 +54,7 @@ paths:
           description: "Usuario no autorizado"
         "500":
           description: "Error fatal al intentar vaciar el carrito"
-  /api/{cid}/cart/products/{pid}:     
+  /api/cart/products/{pid}:     
     post:
       summary: "Añadir un producto al carrito del usuario logueado"
       tags:

@@ -2,18 +2,30 @@ import productModel from "../models/MongoDB/productModel.js";
 import { findCartById, updateCart } from "../services/cartService.js";
 import { findProductById } from "../services/productService.js";
 import { createTicket, returnLastCode } from "../services/ticketService.js";
+import jwt from "jsonwebtoken"
+import { generateAddProductToCartErrorInfo } from "../utils/errors/info.js";
+// import { sendEmail } from "../utils/email.js";
 
 export const getCart = async (req, res) => {
-    const idCart = req.session.user.idCart;
-
+    const cookie = req.cookies['userCookie']
+    if (!cookie) {
+        return res.status(404).json({ message: "Usuario no encontrado" })
+    }
+    const loguedUser = jwt.verify(cookie, process.env.SIGNED_COOKIE).user;
+    const idCart = loguedUser.idCart;
     try {
         const cart = await findCartById(idCart);
+        if (!cart) {
+            throw new Error(`El carrito no existe`);
+        }
         const cartPopulate = await cart.populate({ path: "products.productId", model: productModel })
-        res.status(200).json({ cartPopulate });
-
+        return res.status(200).json({
+            message: "Carrito devuelto correctamente",
+            cart: cartPopulate
+        });
     } catch (error) {
-        req.logger.fatal("Error en el servidor")
-        res.status(500).send({
+        req.logger.fatal("Fatal error/Server connection")
+        return res.status(500).json({
             message: "Hubo un error en el servidor",
             error: error.message
         })
@@ -21,53 +33,95 @@ export const getCart = async (req, res) => {
 }
 
 export const addProductToCart = async (req, res) => {
-    const idCart = req.params.cid    // Carrito a donde va el producto a agregar
-    const idProduct = req.params.pid  // Producto a agregar
+    const cookie = req.cookies['userCookie']
+    if (!cookie) {
+        return res.status(404).json({ message: "Usuario no encontrado" })
+    }
+    const loguedUser = jwt.verify(cookie, process.env.SIGNED_COOKIE).user;
+    const idCart = loguedUser.idCart;
+    const idProduct = req.params.pid;
 
+    const productoExiste = await findProductById(idProduct)
     try {
-        const realProduct = await findProductById(idProduct);
+        // Verifica que haya un producto para agregar
+        if (!productoExiste) {
+            throw CustomError.createError({
+                name: "Error al agregar un producto",
+                message: "Producto no existente",
+                cause: generateAddProductToCartErrorInfo(idProduct),
+                code: ErrorEnum.MISSING_FIELDS
+            });
+        } else {
+            try {
+                const realProduct = await findProductById(idProduct);
+                if (realProduct) {
+                    const cart = await findCartById(idCart);
+                    const productIndex = cart.products.findIndex(product => product.productId == idProduct);
+                    if (productIndex === -1) {
+                        cart.products.push({ productId: idProduct });
+                    } else {
+                        if (cart.products[productIndex].quantity+1 > realProduct.stock){
+                            return res.status(400).json({message:"Stock insuficiente"})
+                        }
+                        cart.products[productIndex].quantity += 1; 
+                    }
 
-        if (realProduct) {
-            const cart = await findCartById(idCart);
-            const productIndex = cart.products.findIndex(product => product.productId.equals(idProduct));
-            if (productIndex === -1) {
-                cart.products.push({ productId: idProduct });
-            } else {
-                cart.products[productIndex].quantity += 1;
+                    await cart.save();
+                    req.logger.info("El producto", idProduct, "ha sido agregado al carrito")
+                    return res.status(200).json({
+                        message: "Producto agregado al carrito",
+                        cart: await cart.populate({ path: "products.productId", model: productModel })
+
+                    })
+                }
+
+            } catch (error) {
+                req.logger.fatal("Error en el servidor")
+                return res.status(500).json({
+                    message: "Error en el servidor",
+                    error: error.message
+                })
             }
-            await updateCart(idCart, cart);
-            req.logger.info("Producto agregado")
-            return res.status(200).send("Producto agregado al carrito con exito")
         }
-        res.status(200).json({
-            message: "Producto no existe"
-        });
     } catch (error) {
-        req.logger.fatal("Error en el servidor")
-        res.status(500).json({
-            message: "Error en el servidor",
-            message: error.message
-        });
+        next(error);
     }
 }
 
 export const updateProductQuantity = async (req, res) => {
-
     const { quantity } = req.body;
+    const cookie = req.cookies['userCookie']
+    if (!cookie) {
+        return res.status(404).json({ message: "Usuario no encontrado" })
+    }
 
-    const idCart = req.params.cid
-    const idProduct = req.params.pid
+    const loguedUser = jwt.verify(cookie, process.env.SIGNED_COOKIE).user;
+    const idCart = loguedUser.idCart;
+
+    const idProduct = req.params.pid;
     const newQuantity = parseInt(quantity);
 
     try {
         const cart = await findCartById(idCart);
         const productIndex = cart.products.findIndex(product => product.productId.equals(idProduct));
+
         if (productIndex === -1) {
             throw new Error('El producto no existe en el carrito.');
         }
+        const dbProduct = await productModel.findById(idProduct)
+        if (newQuantity < 1 ) {
+            return res.status(400).json({ message: "Debes tener un producto como mínimo" })
+        }
+        if (dbProduct.stock < newQuantity) {
+            return res.status(400).json({ message: "No hay mas stock" })
+        }
+
         cart.products[productIndex].quantity = newQuantity;
-        await updateCart(idCart, cart);
-        return res.status(200).send("Cantidad del producto actualizada")
+        await cart.save();
+        return res.status(200).json({
+            message: "Cantidad del producto actualizada",
+            cart: await cart.populate({ path: "products.productId", model: productModel })
+        })
 
     } catch (error) {
         req.logger.fatal("Error en el servidor")
@@ -128,90 +182,34 @@ export const deleteAllProductsCart = async (req, res) => {
 }
 
 export const deleteProductCart = async (req, res) => {
-    const idCart = req.params.cid
-    const idProduct = req.params.pid
-
+    const cookie = req.cookies['userCookie']
+    if (!cookie) {
+        return res.status(404).json({ message: "Usuario no encontrado" })
+    }
+    const loguedUser = jwt.verify(cookie, process.env.SIGNED_COOKIE).user;
+    const idCart = loguedUser.idCart;
+    const idProduct = req.params.pid;
     try {
         const cart = await findCartById(idCart);
         const productIndex = cart.products.findIndex(product => product.productId.equals(idProduct));
 
         if (productIndex === -1) {
-            throw new Error('El producto no existe en el carrito.');
+            throw new Error('Producto no encontrado en el carrito');
         }
 
         cart.products.splice(productIndex, 1);
-        await updateCart(idCart, cart);
-        return res.status(200).send("El producto ha sido eliminado del carrito")
+        await cart.save();
+        return res.status(200).json({
+            message: "El producto ha sido eliminado del carrito",
+            cart: await cart.populate({ path: "products.productId", model: productModel })
+        })
+
 
     } catch (error) {
         req.logger.fatal("Error en el servidor")
-        res.status(500).json({
-            message: error.message,
-        });
-    }
-}
-
-export const createNewTicket = async (req, res) => {
-
-    const cart = await findCartById(req.session.user.idCart)
-
-    if (cart.products.length > 0) {
-
-      let amount = 0;
-      let productosSinStock = [];
-
-      for (const cartProduct of cart.products) {
-
-        const productosDatabase = await findProductById(cartProduct.productId);
-
-        if (productosDatabase) {
-          if (productosDatabase.stock > cartProduct.quantity) {
-
-            amount += cartProduct.quantity;
-            productosDatabase.stock -= cartProduct.quantity;
-            await productosDatabase.save();
-          } else {
-            productosSinStock.push(cartProduct.productId);
-          }
-        } else {
-          const productosSinProcesar = cart.products;
-          cart.products = [];
-          await cart.save();
-
-          return res.status(404).send({
-            message:
-              "El producto que está en el carrito no existe, su carrito se vació",
-            productosSinProcesar: productosSinProcesar,
-          });
-        }
-      }
-      const lastCode = await returnLastCode();
-      const nextCode = lastCode ? lastCode.code + 1 : 1;
-
-      const ticket = await createTicket({
-        code: nextCode,
-        amount: amount,
-        purchase_dateTime: new Date(),
-        purchaser: req.session.user.email,
-      });
-
-      cart.products = [];
-      await cart.save();
-      
-      if (productosSinStock.length > 0) {
-        return res.status(200).send({
-          message:
-            "Compra exitosa, algunos productos no se agregaron debido a stock insuficiente",
-          ticket: ticket,
-          productosSinStock: productosSinStock,
-        });
-      } else {
-        return res.status(200).send({
-          message: "Ticket generado, se vació el carrito",
-          ticket: ticket,
-        });
-      }
-    } else {
-      return res.status(404).send("El carrito está vacio");
+        res.status(500).send({
+            message: "Error en el servidor",
+            error: error.message
+        })
     }
 }

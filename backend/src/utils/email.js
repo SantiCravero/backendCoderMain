@@ -1,38 +1,62 @@
-import nodemailer from 'nodemailer'
-import 'dotenv/config.js'
+import nodemailer from "nodemailer";
+import "dotenv/config.js";
+export const transporter = nodemailer.createTransport({
+  //Genero la forma de enviar info desde mail (o sea, desde Gmail con x cuenta)
+  host: "smtp.gmail.com", //Defino que voy a utilizar un servicio de Gmail
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.MAIL_SENDER, //Mail del que se envia informacion
+    pass: process.env.MAIL_PASSWORD,
+    authMethod: "LOGIN",
+  },
+});
 
-export const transporter = nodemailer.createTransport({ //Genero la forma de enviar info desde mail (o sea, desde Gmail con x cuenta)
-    host: 'smtp.gmail.com', //Defino que voy a utilizar un servicio de Gmail
-    port: 465,
-    secure: true,
-    auth: {
-        user: process.env.MAIL_SENDER, //Mail del que se envia informacion
-        pass: process.env.MAIL_PASSWORD, // Contraseña de "Contraseña de apliaciones" en Gmail
-        authMethod: 'LOGIN'
-    }
-})
+export const sendTicketEmail = async (ticket) => {
+  try {
+    const listaDeProductos = ticket.products.map((product) => 
+    `<li>Producto: <small>${product.product}</small> , precio: <small>${product.price}</small> , cantidad: <small>${product.quantity}</small> </li>`).join("");
 
+    await transporter.sendMail({
+      from: "Michael Kors",
+      to: ticket.purchaser,
+      subject: "Ticket de compra",
+      html: `
+            <div>
+                <h2>Muchas gracias por comprar en Michael Kors</h2>
+                <p>A continuacion le adjuntamos su ticket con cada detalle del mismo</p>
+                <p>ID de compra: <small>${ticket._id}</small></p>
+                <p>Codigo de Compra: <small>${ticket.code}</small></p>
+                <p>Cantidad: <small>${ticket.amount}</small></p>
+                <h3>Products</h3>
+                <p>${listaDeProductos}</p>
+                <h3>Total: $${ticket.total}</h3>
+            </div>
+          `,
+      attachments: [],
+    });
+    return { message: "Email enviado" };
+  } catch (error) {
+    return {
+      message: "Error con el remitente",
+      error: error,
+    };
+  }
+};
 
-export const sendEmail = async (req, res) => {
-    try {
-        await transporter.sendMail({
-            from: 'Test Coder santicravero2@gmail.com',
-            to: req.session.user.email,
-            subject: "Probando nodemailer",
-            html: `
-                <div>
-                    <h2>Aqui va el modelo de ticket mostrado en clase</h2>
-                </div>
-            `,
-            attachments: []
-        })
-        res.status(200).send({ 
-            message: "Email enviado" 
-        })
-    } catch(error) {
-        res.status(400).send({
-            message: "Error con el remitente",
-            error: error
-        })
-    }
-}
+// export const sendDeleteNotification = async (user) => {
+//     console.log(user.email)
+//     await transporter.sendMail({
+//         from: 'Santiago Basso',
+//         to: user.email,
+//         subject: "Account notification email",
+//         html: `
+//                 <div>
+//                     <h2>Su cuenta fue eliminada por inactividad</h2>
+//                 </div>
+//             `,
+//         attachments: []
+//     })
+//     return "Email sent"
+
+// }

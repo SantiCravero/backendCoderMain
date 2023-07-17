@@ -1,17 +1,23 @@
-<h2>Inicia sesión para comprar</h2>
-<form id="formLogin" action="/login" method="POST">
-    <label for="email">Email:</label>
-    <input type="email" id="email" name="email" required />
-    <br />
-    <label for="password">Contraseña:</label>
-    <input type="password" id="password" name="password" required />
-    <br />
-    <input type="submit" value="Iniciar sesión" />
+<form id="formGroup" action="/login" method="POST">
+  <div class="text-center">
+    <img src="/img/login.svg" height=80px>
+    <h2>Login</h2>
+    <hr>
+  </div>
+  <div class="form-group">
+    <label for="email" class="my-2">Email</label>
+    <input type="email" id="email" name="email" class="form-control" placeholder="Ingrese su email" required>
+  </div>
+  <div class="form-group">
+    <label for="password" class="my-2">Password</label>
+    <input type="password" id="password" name="password" class="form-control" placeholder="Ingrese su contraseña" required>
+  </div>
+  <button type="submit" class="btn botonEnviar">Enviar</button>
+  <div class="d-flex justify-content-between my-2">
+    <a href="/register">Registrarse</a>
+    <a href="/forgotPassword">Olvidé mi contraseña</a>
+  </div>
 </form>
-<p><a href="/register">Registrarse</a></p>
-<span>
-<p><a href="/forgotPassword">Olvidé mi contraseña</a></p>
-</span>
-
 
 <script src="js/login.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.js"></script>

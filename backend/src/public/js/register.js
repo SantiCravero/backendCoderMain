@@ -16,10 +16,24 @@ form.addEventListener('submit', e => {
 
     fetch('/api/session/register', options)
         .then(response => {
-            if (response.ok) {
-                window.location.href = '/login'
+            if (!response.ok) {
+                return Swal.fire({
+                    position: 'center',
+                    icon: 'error',
+                    title: `Error:`,
+                    showConfirmButton: false,
+                    timer: 1500
+                })    
             } else {
-                throw new Error('Error al crear cuenta.')
+                Swal.fire({
+                    position: 'center',
+                    icon: 'success',
+                    title: 'Usuario creado con exito',
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
+                    window.location.href = `/login`;
+                });
             }
         })
 })
