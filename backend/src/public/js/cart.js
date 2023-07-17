@@ -36,30 +36,31 @@ const getCart = async () => {
             totalCompra += singleProduct.price * product.quantity
             let item = document.createElement("div");
             let itemContent = `
-            <div class="card-body p-4">
-                <div class="row d-flex justify-content-between align-items-center">
-                    <div class="col-md-2 col-lg-2 col-xl-2">
-                        <img src="${singleProduct.thumbnails[0]}" class="img-fluid rounded-3" alt="${singleProduct.title}">
-                    </div>
-                    <div class="col-md-3 col-lg-3 col-xl-3">
-                        <p class="lead fw-normal mb-2">${singleProduct.title}</p>
-                        <div class="d-flex align-items-center">
-                            <button id="menosCant${singleProduct._id}" class="btn btn-transparent text-black fs-3 btn-sm me-2">-</button>
-                            <span class="text-muted">${product.quantity}</span>
-                            <button id="masCant${singleProduct._id}" class="btn btn-transparent text-black fs-3 btn-sm ms-2">+</button>
-                        </div>
-                        <p class="text-muted">Precio: ${singleProduct.price}</p>
-                    </div>
-                    <div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
-                        <h5 class="mb-0">$ ${singleProduct.price * product.quantity}</h5>
-                    </div>
-                    <div class="col-md-1 col-lg-1 col-xl-1 text-end">
-                        <a id="btnBorrar${singleProduct._id}" class="text-danger">Toca aca</i></a>
-                    </div>
-                </div>
-            </div>
-            `;
 
+            <article class="product">
+				<header>
+					<a class="remove">
+						<img src="${singleProduct.thumbnails[0]}" alt="${singleProduct.title}">
+						<a id="btnBorrar${singleProduct._id}"><h3>Eliminar producto</h3></a>
+					</a>
+				</header>
+
+				<div class="content">
+					<h1>${singleProduct.title}</h1>
+					${singleProduct.description}
+				</div>
+
+				<footer class="content">
+					<span id="menosCant${singleProduct._id}" class="qt-minus">-</span>
+					<span class="qt">${product.quantity}</span>
+					<span id="masCant${singleProduct._id}" class="qt-plus">+</span>
+
+					<h2 class="full-price"> $ ${singleProduct.price * product.quantity}</h2>
+					<h2 class="price">$ ${singleProduct.price}</h2>
+				</footer>
+			</article>
+
+            `;
             item.innerHTML = itemContent;
             cartItemsContainer.appendChild(item)
 
@@ -154,7 +155,6 @@ document.getElementById('checkoutButton').addEventListener('click', async (e) =>
             timer: 2000
         })
     }
-
     Swal.fire({
         position: 'center',
         icon: 'success',
@@ -165,7 +165,6 @@ document.getElementById('checkoutButton').addEventListener('click', async (e) =>
         window.location.href = `http://localhost:5000/product`;
     })
 })
-
 
 getCart()
 

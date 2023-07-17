@@ -14,7 +14,7 @@ form.addEventListener('submit', e => {
         body: new URLSearchParams(formData).toString()
     }
 
-    fetch('/api/session/register', options)
+    fetch('http://localhost:5000/api/session/register', options)
         .then(response => {
             if (!response.ok) {
                 return Swal.fire({

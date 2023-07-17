@@ -20,18 +20,23 @@ const showProfile = async()=>{
         `;
     }else{
         itemContent = `
-        <div class="card-body p-4">
-            <div class="row d-flex justify-content-between align-items-center">
-                <div>
-                    <h3>Nombre</h3>
-                    <p class="lead fw-normal mb-2">${user.first_name}</p>
-                    <h3>Apellido</h3>
-                    <p class="lead fw-normal mb-2">${user.last_name}</p>
-                    <h3>Email</h3>
-                    <p class="lead fw-normal mb-2">${user.email}</p>
+        <div class="d-flex align-items-center">
+            <div class="card-body p-4 bg-white rounded my-4 w-50">
+                <div class="row d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3>Nombre</h3>
+                        <p class="lead fw-normal mb-2">${user.first_name}</p>
+                        <h3>Apellido</h3>
+                        <p class="lead fw-normal mb-2">${user.last_name}</p>
+                        <h3>Email</h3>
+                        <p class="lead fw-normal mb-2">${user.email}</p>
+                    </div>
                 </div>
-            </div>
-        </div>            
+            </div> 
+            <div class="card-body ms-5">
+                <button id="btnLogout" type="button" class="btn btn-warning btn-block btn-lg text-center">Logout</button>
+            </div>           
+        </div>
         `;
     }
 

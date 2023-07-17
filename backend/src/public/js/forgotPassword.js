@@ -12,8 +12,22 @@ sendMailForm.addEventListener('submit', async (e) => {
       body: JSON.stringify({ email: email }),
     });
 
-    if (response.ok){
-      alert("Le enviamos el instructivo para cambiar su contraseña. Revisa su correo electronico")
+    if (!response.ok){
+      return Swal.fire({
+        position: 'center',
+        icon: 'error',
+        title: `Error al restablecer la contraseña`,
+        showConfirmButton: false,
+        timer: 2000
+      })
+    } else {
+      Swal.fire({
+        position: 'center',
+        icon: 'success',
+        title: "Le enviamos el instructivo para cambiar su contraseña. Revisa su correo electronico",
+        showConfirmButton: false,
+        timer: 2000
+      })
     }
     const data = await response.json();
     console.log(data);
