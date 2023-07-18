@@ -25,7 +25,7 @@ const showProducts = async () => {
 
         let cardContent = `  
                 <li class="product">
-                    <botton id="btn${product._id}">
+                    <botton>
                         <span class="onsale">Sale!</span>
                         <img alt="${product.title}" class="attachment-shop_catalog " src="${imgUrl}" />
                         <h3 class="fs-4 py-3">${product.title}</h3>
@@ -37,7 +37,7 @@ const showProducts = async () => {
                             </span>
                         </div>
                     </botton>
-                    <a href="" class="btn btn-dark btn-circle btn-review" data-toggle="tooltip" data-placement="top" title="Quick View"><i class="ion ion-ios-move"></i></a>
+                    <button href="" id="btn${product._id}" class="btn btn-dark btn-circle btn-review" data-toggle="tooltip" data-placement="top" title="Quick View"><i class="ion ion-ios-move"></i></button>
                 </li>    
                 `;
         card.innerHTML = cardContent;

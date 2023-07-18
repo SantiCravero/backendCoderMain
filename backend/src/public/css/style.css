@@ -353,7 +353,7 @@ img {
   position: relative;
   padding: 20px;
   background: #fff;
-  cursor: pointer;
+  /* cursor: pointer; */
   margin: 10px;
 }
 @media (max-width: var(--breakpoint-sm)) {
@@ -404,10 +404,15 @@ img {
   margin: 0 auto;
 }
 .mystyle-products .product .btn-circle {
-  border-radius: 50%;
+  /* border-radius: 50%;
   width: 30px;
   height: 30px;
-  line-height: 30px;
+  line-height: 30px; */
+  width: 70%;
+  height: 15%;
+  line-height: 60px;
+  background-color: #7f8db0b5;
+  border: none;
   display: block;
   padding: 0;
   position: absolute;
@@ -424,6 +429,12 @@ img {
   transition: color 0.5s 0.001s ease-out, background 0.3s 0.001s ease-out,
     visibility 0.5s 0.25s ease-out, opacity 0.5s 0.25s ease-out,
     transform 0.5s 0.25s ease-out;
+}
+.mystyle-products .product .btn-circle::before {
+  content: 'Agregar al carrito';
+}
+.mystyle-products .product .btn-circle:hover {
+  background-color: #0a58cac7;
 }
 .mystyle-products .product .price {
   font-size: 14px;

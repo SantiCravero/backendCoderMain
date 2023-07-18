@@ -1,5 +1,4 @@
-import { deleteUserById, findUserById, findUsers, updateUser } from "../services/userService.js";
-import { sendDeleteEmail } from "../utils/email.js";
+import { findInactiveUsers, findUserById, findUsers, updateUser } from "../services/userService.js";
 
 export const getUsers = async (req, res) => {
   try {
@@ -15,33 +14,79 @@ export const getUsers = async (req, res) => {
 };
 
 export const deleteInactiveUsers = async (req, res, next) => {
-
   try {
-    const users = await findUsers();
-    if (users.length === 0) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
-    }
-    let algunBorrado = false;
-    for (const user of users) {
-      const lastConnection = user.lastConnection;
-      const currentDate = new Date();
-      const timeDay = 24 * 60 * 1000; // Cantidad de milisegundos en un día
-      const inactiveUsersDays = Math.floor((currentDate - lastConnection) / timeDay);
-      if (inactiveUsersDays >= 2) {
-        algunBorrado = true;
-        await deleteUserById(user._id);
-        console.log(await sendDeleteEmail(user));
-      }
+
+    const date = new Date();
+    const twoDays = new Date(date);
+
+    twoDays.setDate(date.getDate() - 1); // Cambiar a 2
+    console.log(twoDays)
+
+    const inactiveUsers = await findInactiveUsers(twoDays);
+
+    // Comprueba si existe algun usuario inactivos para eliminar
+    if (!inactiveUsers || inactiveUsers.length === 0) {
+      req.logger.info("No se encontro usuario inactivos");
+      return res.status(200).send("No se encontro usuario inactivos");
     }
 
-    if (!algunBorrado) {
-      return res.status(404).json({ message: "Usuarios inactivos no encontrados" });
-    }
+    inactiveUsers.forEach( async (user) => {
+      await transporter.sendMail({
+        from: "no-reply",
+        to: user.email,
+        subject: `${user.first_name}, tu cuenta ha sido eliminada por inactividad`,
+        html: `<p>Hola ${user.first_name},</p>
 
-    return res.status(200).json({ message: "Usuarios inactivos eliminados" });
+          <p>Por desgracia, debimos eliminar tu cuenta debido a la inactividad(</p>
+          <p>A partir de este momento, su email se encuentra listo para volverse a utilizar.</p>
+          <small>Si desea volver a nuestra web, debe registrarse nuevamente</small>
+          </br>
+          <p>Esperamos volver a verlo</p>
+          <h2>Michael Kors</h2>
+
+          `,
+      });
+    });
+
+    const result = await deleteInactiveUsers(twoDays);
+
+    req.logger.info(`Usuarios inavtivos eliminados`);
+    res.status(200).send({
+      status: "success",
+      deletedCount: `${result.deletedCount} usuarios inavtivos eliminados`,
+      deletedUsers: inactiveUsers,
+    });
+
   } catch (error) {
-    return res.status(500).json({ message: error });
+    req.logger.error(error);
+    res.status(500).send(`Error en el servidor`);
   }
+  // try {
+  //   const users = await findUsers();
+  //   if (users.length === 0) {
+  //     return res.status(404).json({ message: "Usuario no encontrado" });
+  //   }
+  //   let algunBorrado = false;
+  //   for (const user of users) {
+  //     const lastConnection = user.lastConnection;
+  //     const currentDate = new Date();
+  //     const timeDay = 24 * 60 * 1000; // Cantidad de milisegundos en un día
+  //     const inactiveUsersDays = Math.floor((currentDate - lastConnection) / timeDay);
+  //     if (inactiveUsersDays >= 2) {
+  //       algunBorrado = true;
+  //       await deleteUserById(user._id);
+  //       console.log(await sendDeleteEmail(user));
+  //     }
+  //   }
+
+  //   if (!algunBorrado) {
+  //     return res.status(404).json({ message: "Usuarios inactivos no encontrados" });
+  //   }
+
+  //   return res.status(200).json({ message: "Usuarios inactivos eliminados" });
+  // } catch (error) {
+  //   return res.status(500).json({ message: error });
+  // }
 };
 
 export const addDocs = async (req, res, next) => {
