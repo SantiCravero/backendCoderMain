@@ -14,8 +14,8 @@ export const transporter = nodemailer.createTransport({
 
 export const sendTicketEmail = async (ticket) => {
   try {
-    const listaDeProductos = ticket.products.map((product) => 
-    `<li>Producto: <small>${product.product}</small> , precio: <small>${product.price}</small> , cantidad: <small>${product.quantity}</small> </li>`).join("");
+    const listaDeProductos = ticket.products.map((product) =>
+        `<li>Producto: <small>${product.product}</small> , precio: <small>${product.price}</small> , cantidad: <small>${product.quantity}</small> </li>`).join("");
 
     await transporter.sendMail({
       from: "Michael Kors",
@@ -44,3 +44,23 @@ export const sendTicketEmail = async (ticket) => {
   }
 };
 
+export const sendDeleteEmail = async (user) => {
+  console.log(user.email);
+  await transporter.sendMail({
+    from: "Michael Kors",
+    to: user.email,
+    subject: `${user.first_name}, tu cuenta ha sido eliminada por inactividad`,
+    html: `<p>Hola ${user.first_name},</p>
+              
+              <p>Por desgracia, debimos eliminar tu cuenta debido a la inactividad(</p>
+              <p>A partir de este momento, su email se encuentra listo para volverse a utilizar.</p>
+              <small>Si desea volver a nuestra web, debe registrarse nuevamente</small>
+              </br>
+              <p>Esperamos volver a verlo</p>
+              <h2>Michael Kors</h2>
+              
+              `,
+    attachments: [],
+  });
+  return "Email enviado";
+};

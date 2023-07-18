@@ -34,9 +34,10 @@ export const roleVerification = (roles) => {
 
       const loguedUser = jwt.verify(cookie, process.env.SIGNED_COOKIE).user;
       const userDB = await findUserById(loguedUser._id);
-      
+
       if (roles.toUpperCase() !== userDB.role.toUpperCase()) {
         req.logger.info("Usuario no autorizado");
+        return res.status(403).json({message:"Usuario no autorizado"})
       }
       
       else{

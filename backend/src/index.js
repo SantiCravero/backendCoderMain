@@ -35,6 +35,7 @@ const corsOptions = {
 
 // Iniciar server
 const app = express();
+const PORT = process.env.PORT || 5000
 
 // Middlewars
 // express
@@ -87,8 +88,8 @@ app.use(addLogger)
 // Port
 app.set("port", process.env.PORT || 8080);
 
-const server = app.listen(app.get("port"), () => {
-  console.log(`Server running on Port: ${app.get("port")}`);
+const server = app.listen(PORT, () => {
+  console.log(`Server running on Port: ${PORT}`);
 });
 
 

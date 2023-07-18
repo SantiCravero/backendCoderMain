@@ -30,6 +30,8 @@ const showProfile = async()=>{
                         <p class="lead fw-normal mb-2">${user.last_name}</p>
                         <h3>Email</h3>
                         <p class="lead fw-normal mb-2">${user.email}</p>
+                        <h3>Rol</h3>
+                        <p class="lead fw-normal mb-2">${user.role}</p>
                     </div>
                 </div>
             </div> 
