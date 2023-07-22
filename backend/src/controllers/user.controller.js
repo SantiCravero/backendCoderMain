@@ -1,5 +1,5 @@
-import { deleteUserById, findUserById, findUsers, updateUser } from "../services/userService.js";
-import { sendDeleteEmail } from "../utils/email.js";
+import { deleteUserById, findInactiveUsers, findUserById, findUsers, updateUser } from "../services/userService.js";
+// import { sendDeleteEmail } from "../utils/email.js";
 
 export const getUsers = async (req, res) => {
   try {
@@ -14,30 +14,49 @@ export const getUsers = async (req, res) => {
 
 export const deleteInactiveUsers = async (req, res, next) => {
   try {
-    const users = await findUsers();
-    if (users.length === 0) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
-    }
-    let deleted = false;
-    for (const user of users) {
-      const lastConnection = user.lastConnection;
-      const currentDate = new Date();
-      const timeDay = 24 * 60 * 60 * 1000; // Cantidad de milisegundos en un día
-      const inactiveUsersDays = Math.floor((currentDate - lastConnection) / timeDay);
-      if (inactiveUsersDays >= 2) {
-        deleted = true;
-        await deleteUserById(user._id);
-        console.log(await sendDeleteEmail(user));
-      }
+    const currentDate = new Date()
+
+    const twoDays = new Date(currentDate)
+    twoDays.setDate(currentDate.getDate() - 2)
+
+    const inactiveUsers = await findInactiveUsers(twoDays)
+
+    // Compruebo si existe usuarios inactivos
+    if (!inactiveUsers || inactiveUsers.length === 0) {
+      req.logger.info('Usuarios inactivos no encontrados')
+      return res.status(200).send('Usuarios inactivos no encontrados')
     }
 
-    if (!deleted) {
-      return res.status(404).json({ message: "Usuarios inactivos no encontrados" });
-    }
+    inactiveUsers.forEach(user => {
+      transporter.sendMail({
+        from: "Michael Kors",
+        to: user.email,
+        subject: `${user.first_name}, tu cuenta ha sido eliminada por inactividad`,
+        html: `<p>Hola ${user.first_name},</p>
+                  
+                  <p>Por desgracia, debimos eliminar tu cuenta debido a la inactividad(</p>
+                  <p>A partir de este momento, su email se encuentra listo para volverse a utilizar.</p>
+                  <small>Si desea volver a nuestra web, debe registrarse nuevamente</small>
+                  </br>
+                  <p>Esperamos volver a verlo</p>
+                  <h2>Michael Kors</h2>
+                  
+                  `,
+      })
+    });
 
-    return res.status(200).json({ message: "Usuarios inactivos eliminados" });
+    const result = await deleteInactiveUsers(twoDays)
+
+    req.logger.info(`Usuarios inactivos eliminados`)
+    res.status(200).send({
+      status: 'success',
+      deletedCount: `${result.deletedCount} usuarios inactivos eliminados`,
+      deletedUsers: inactiveUsers
+    })
+
   } catch (error) {
-    return res.status(500).json({ message: error });
+    req.logger.error(error)
+    res.status(500).send(`Error en el servidor`)
   }
 };
 

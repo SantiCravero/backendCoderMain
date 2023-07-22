@@ -43,24 +43,3 @@ export const sendTicketEmail = async (ticket) => {
     };
   }
 };
-
-export const sendDeleteEmail = async (user) => {
-  console.log(user.email);
-  await transporter.sendMail({
-    from: "Michael Kors",
-    to: user.email,
-    subject: `${user.first_name}, tu cuenta ha sido eliminada por inactividad`,
-    html: `<p>Hola ${user.first_name},</p>
-              
-              <p>Por desgracia, debimos eliminar tu cuenta debido a la inactividad(</p>
-              <p>A partir de este momento, su email se encuentra listo para volverse a utilizar.</p>
-              <small>Si desea volver a nuestra web, debe registrarse nuevamente</small>
-              </br>
-              <p>Esperamos volver a verlo</p>
-              <h2>Michael Kors</h2>
-              
-              `,
-    attachments: [],
-  });
-  return "Email enviado";
-};

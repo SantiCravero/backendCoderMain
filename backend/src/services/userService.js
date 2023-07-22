@@ -58,3 +58,20 @@ export const updateUser = async (id, info) => {
         throw new Error(error);
     }
 }
+
+export const findInactiveUsers = async (dateTimeLimit) => {
+    try {
+      const users = await userModel.find({ last_connection: { $lt: dateTimeLimit } })
+      return users
+    } catch (error) {
+      throw new Error(error)
+    }
+  }
+  
+  export const delInactiveUser = async (dateTimeLimit) => {
+    try {
+      return await userModel.deleteMany({ last_connection: { $lt: dateTimeLimit } })
+    } catch (error) {
+      throw new Error(error)
+    }
+  }
