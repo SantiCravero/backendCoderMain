@@ -22,7 +22,7 @@ export const deleteInactiveUsers = async (req, res, next) => {
     for (const user of users) {
       const lastConnection = user.lastConnection;
       const currentDate = new Date();
-      const timeDay = 24 * 60 * 1000; // Cantidad de milisegundos en un día
+      const timeDay = 24 * 60 * 60 * 1000; // Cantidad de milisegundos en un día
       const inactiveUsersDays = Math.floor((currentDate - lastConnection) / timeDay);
       if (inactiveUsersDays >= 2) {
         deleted = true;
